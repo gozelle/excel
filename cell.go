@@ -678,7 +678,7 @@ type FormulaOpts struct {
 //	import (
 //	    "fmt"
 //
-//	    "github.com/gozelle/excelize"
+//	    "github.com/gozelle/excel"
 //	)
 //
 //	func main() {
@@ -1048,7 +1048,7 @@ func setRichText(runs []RichTextRun) ([]xlsxR, error) {
 //	import (
 //	    "fmt"
 //
-//	    "github.com/gozelle/excelize"
+//	    "github.com/gozelle/excel"
 //	)
 //
 //	func main() {

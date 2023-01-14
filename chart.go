@@ -526,7 +526,7 @@ func parseChartOptions(opts *Chart) (*Chart, error) {
 //	import (
 //	    "fmt"
 //
-//	    "github.com/gozelle/excelize"
+//	    "github.com/gozelle/excel"
 //	)
 //
 //	func main() {
@@ -843,7 +843,7 @@ func parseChartOptions(opts *Chart) (*Chart, error) {
 //	import (
 //	    "fmt"
 //
-//	    "github.com/gozelle/excelize"
+//	    "github.com/gozelle/excel"
 //	)
 //
 //	func main() {

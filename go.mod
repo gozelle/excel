@@ -1,4 +1,4 @@
-module github.com/gozelle/excelize
+module github.com/gozelle/excel
 
 go 1.16
 

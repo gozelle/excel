@@ -62,7 +62,7 @@ func parseGraphicOptions(opts *GraphicOptions) *GraphicOptions {
 //	    _ "image/jpeg"
 //	    _ "image/png"
 //
-//	    "github.com/gozelle/excelize"
+//	    "github.com/gozelle/excel"
 //	)
 //
 //	func main() {
@@ -173,7 +173,7 @@ func (f *File) AddPicture(sheet, cell, picture string, opts *GraphicOptions) err
 //	    _ "image/jpeg"
 //	    "os"
 //
-//	    "github.com/gozelle/excelize"
+//	    "github.com/gozelle/excel"
 //	)
 //
 //	func main() {

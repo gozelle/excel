@@ -91,7 +91,7 @@ type PivotTableField struct {
 //	    "fmt"
 //	    "math/rand"
 //
-//	    "github.com/gozelle/excelize"
+//	    "github.com/gozelle/excel"
 //	)
 //
 //	func main() {
