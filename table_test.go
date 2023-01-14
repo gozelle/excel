@@ -1,10 +1,10 @@
-package excelize
+package excel
 
 import (
 	"fmt"
 	"path/filepath"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,15 +22,15 @@ func TestAddTable(t *testing.T) {
 	},
 	))
 	assert.NoError(t, f.AddTable("Sheet2", "F1:F1", &TableOptions{StyleName: "TableStyleMedium8"}))
-
+	
 	// Test add table in not exist worksheet
 	assert.EqualError(t, f.AddTable("SheetN", "B26:A21", nil), "sheet SheetN does not exist")
 	// Test add table with illegal cell reference
 	assert.EqualError(t, f.AddTable("Sheet1", "A:B1", nil), newCellNameToCoordinatesError("A", newInvalidCellNameError("A")).Error())
 	assert.EqualError(t, f.AddTable("Sheet1", "A1:B", nil), newCellNameToCoordinatesError("B", newInvalidCellNameError("B")).Error())
-
+	
 	assert.NoError(t, f.SaveAs(filepath.Join("test", "TestAddTable.xlsx")))
-
+	
 	// Test add table with invalid sheet name
 	assert.EqualError(t, f.AddTable("Sheet:1", "B26:A21", nil), ErrSheetNameInvalid.Error())
 	// Test addTable with illegal cell reference
@@ -65,7 +65,7 @@ func TestAutoFilter(t *testing.T) {
 			assert.NoError(t, f.SaveAs(fmt.Sprintf(outFile, i+1)))
 		})
 	}
-
+	
 	// Test add auto filter with invalid sheet name
 	assert.EqualError(t, f.AutoFilter("Sheet:1", "A1:B1", nil), ErrSheetNameInvalid.Error())
 	// Test add auto filter with illegal cell reference
@@ -95,7 +95,7 @@ func TestAutoFilterError(t *testing.T) {
 			}
 		})
 	}
-
+	
 	assert.EqualError(t, f.autoFilter("SheetN", "A1", 1, 1, &AutoFilterOptions{
 		Column:     "A",
 		Expression: "",

@@ -9,14 +9,14 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,7 +37,7 @@ func TestEncrypt(t *testing.T) {
 	raw[2050] = 3
 	_, err = Decrypt(raw, &Options{Password: "password"})
 	assert.EqualError(t, err, ErrUnsupportedEncryptMechanism.Error())
-
+	
 	// Test encrypt spreadsheet with invalid password
 	assert.EqualError(t, f.SaveAs(filepath.Join("test", "Encryption.xlsx"), Options{Password: strings.Repeat("*", MaxFieldLength+1)}), ErrPasswordLengthInvalid.Error())
 	// Test encrypt spreadsheet with new password

@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import "strings"
 
@@ -56,10 +56,10 @@ func (f *File) MergeCell(sheet, hCell, vCell string) error {
 	}
 	// Correct the range reference, such correct C1:B3 to B1:C3.
 	_ = sortCoordinates(rect)
-
+	
 	hCell, _ = CoordinatesToCellName(rect[0], rect[1])
 	vCell, _ = CoordinatesToCellName(rect[2], rect[3])
-
+	
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
 		return err
@@ -93,10 +93,10 @@ func (f *File) UnmergeCell(sheet, hCell, vCell string) error {
 	if err != nil {
 		return err
 	}
-
+	
 	// Correct the range reference, such correct C1:B3 to B1:C3.
 	_ = sortCoordinates(rect1)
-
+	
 	// return nil since no MergeCells in the sheet
 	if ws.MergeCells == nil {
 		return nil
@@ -249,19 +249,19 @@ func (f *File) mergeOverlapCells(ws *xlsxWorksheet) error {
 func mergeCell(cell1, cell2 *xlsxMergeCell) *xlsxMergeCell {
 	rect1, _ := cell1.Rect()
 	rect2, _ := cell2.Rect()
-
+	
 	if rect1[0] > rect2[0] {
 		rect1[0], rect2[0] = rect2[0], rect1[0]
 	}
-
+	
 	if rect1[2] < rect2[2] {
 		rect1[2], rect2[2] = rect2[2], rect1[2]
 	}
-
+	
 	if rect1[1] > rect2[1] {
 		rect1[1], rect2[1] = rect2[1], rect1[1]
 	}
-
+	
 	if rect1[3] < rect2[3] {
 		rect1[3], rect2[3] = rect2[3], rect1[3]
 	}

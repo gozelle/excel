@@ -1,8 +1,8 @@
-package excelize
+package excel
 
 import (
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 

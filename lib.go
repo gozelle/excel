@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"archive/zip"
@@ -519,27 +519,27 @@ func bytesReplace(s, source, target []byte, n int) []byte {
 	if n == 0 {
 		return s
 	}
-
+	
 	if len(source) < len(target) {
 		return bytes.Replace(s, source, target, n)
 	}
-
+	
 	if n < 0 {
 		n = len(s)
 	}
-
+	
 	var wid, i, j, w int
 	for i, j = 0, 0; i < len(s) && j < n; j++ {
 		wid = bytes.Index(s[i:], source)
 		if wid < 0 {
 			break
 		}
-
+		
 		w += copy(s[w:], s[i:i+wid])
 		w += copy(s[w:], target)
 		i += wid + len(source)
 	}
-
+	
 	w += copy(s[w:], s[i:])
 	return s[:w]
 }

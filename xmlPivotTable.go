@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import "encoding/xml"
 

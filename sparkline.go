@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"encoding/xml"
@@ -399,7 +399,7 @@ func (f *File) AddSparkline(sheet string, opts *SparklineOptions) error {
 		groups                         *xlsxX14SparklineGroups
 		sparklineGroupsBytes, extBytes []byte
 	)
-
+	
 	// parameter validation
 	if ws, err = f.parseFormatAddSparklineSet(sheet, opts); err != nil {
 		return err

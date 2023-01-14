@@ -1,10 +1,10 @@
-package excelize
+package excel
 
 import (
 	"fmt"
 	"path/filepath"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
@@ -56,7 +56,7 @@ func TestAdjustMergeCells(t *testing.T) {
 			},
 		},
 	}, columns, 1, -1))
-
+	
 	// Test adjust merge cells
 	var cases []struct {
 		label      string
@@ -67,7 +67,7 @@ func TestAdjustMergeCells(t *testing.T) {
 		expect     string
 		expectRect []int
 	}
-
+	
 	// Test adjust merged cell when insert rows and columns
 	cases = []struct {
 		label      string
@@ -138,7 +138,7 @@ func TestAdjustMergeCells(t *testing.T) {
 		assert.Equal(t, c.expect, c.ws.MergeCells.Cells[0].Ref, c.label)
 		assert.Equal(t, c.expectRect, c.ws.MergeCells.Cells[0].rect, c.label)
 	}
-
+	
 	// Test adjust merged cells when delete rows and columns
 	cases = []struct {
 		label      string
@@ -226,7 +226,7 @@ func TestAdjustMergeCells(t *testing.T) {
 		assert.NoError(t, f.adjustMergeCells(c.ws, c.dir, c.num, -1))
 		assert.Equal(t, c.expect, c.ws.MergeCells.Cells[0].Ref, c.label)
 	}
-
+	
 	// Test delete one row or column
 	cases = []struct {
 		label      string
@@ -274,7 +274,7 @@ func TestAdjustMergeCells(t *testing.T) {
 		assert.NoError(t, f.adjustMergeCells(c.ws, c.dir, c.num, -1))
 		assert.Equal(t, 0, len(c.ws.MergeCells.Cells), c.label)
 	}
-
+	
 	f = NewFile()
 	p1, p2 := f.adjustMergeCellsHelper(2, 1, 0, 0)
 	assert.Equal(t, 1, p1)
@@ -321,7 +321,7 @@ func TestAdjustTable(t *testing.T) {
 	assert.NoError(t, f.RemoveRow(sheetName, 3))
 	assert.NoError(t, f.RemoveCol(sheetName, "H"))
 	assert.NoError(t, f.SaveAs(filepath.Join("test", "TestAdjustTable.xlsx")))
-
+	
 	f = NewFile()
 	assert.NoError(t, f.AddTable(sheetName, "A1:D5", nil))
 	// Test adjust table with non-table part
@@ -361,7 +361,7 @@ func TestAdjustCalcChain(t *testing.T) {
 	}
 	assert.NoError(t, f.InsertCols("Sheet1", "A", 1))
 	assert.NoError(t, f.InsertRows("Sheet1", 1, 1))
-
+	
 	f.CalcChain.C[1].R = "invalid coordinates"
 	assert.EqualError(t, f.InsertCols("Sheet1", "A", 1), newCellNameToCoordinatesError("invalid coordinates", newInvalidCellNameError("invalid coordinates")).Error())
 	f.CalcChain = nil
@@ -402,7 +402,7 @@ func TestAdjustCols(t *testing.T) {
 		}
 		assert.NoError(t, f.Close())
 	}
-
+	
 	baseTbl = []string{"B", "J", "O", "T"}
 	expectedTbl = []map[string]float64{
 		{"H": defaultColWidth, "I": 5, "S": 5, "T": defaultColWidth},
@@ -421,7 +421,7 @@ func TestAdjustCols(t *testing.T) {
 		}
 		assert.NoError(t, f.Close())
 	}
-
+	
 	f, err := preset()
 	assert.NoError(t, err)
 	assert.NoError(t, f.SetColWidth(sheetName, "I", "I", 8))
@@ -435,11 +435,11 @@ func TestAdjustCols(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, defaultColWidth, width, columnName)
 	}
-
+	
 	ws, ok := f.Sheet.Load("xl/worksheets/sheet1.xml")
 	assert.True(t, ok)
 	ws.(*xlsxWorksheet).Cols = nil
 	assert.NoError(t, f.RemoveCol(sheetName, "A"))
-
+	
 	assert.NoError(t, f.Close())
 }

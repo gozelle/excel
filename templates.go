@@ -12,7 +12,7 @@
 // This file contains default templates for XML files we don't yet populated
 // based on content.
 
-package excelize
+package excel
 
 const (
 	defaultXMLPathContentTypes  = "[Content_Types].xml"

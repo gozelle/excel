@@ -1,11 +1,11 @@
-package excelize
+package excel
 
 import (
 	"math"
 	"path/filepath"
 	"strings"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,12 +23,12 @@ func TestStyleFill(t *testing.T) {
 		format:     &Style{Fill: Fill{Type: "pattern", Pattern: 1, Color: []string{"#000000"}}},
 		expectFill: true,
 	}}
-
+	
 	for _, testCase := range cases {
 		xl := NewFile()
 		styleID, err := xl.NewStyle(testCase.format)
 		assert.NoError(t, err)
-
+		
 		styles, err := xl.stylesReader()
 		assert.NoError(t, err)
 		style := styles.CellXfs.Xf[styleID]
@@ -154,17 +154,17 @@ func TestSetConditionalFormat(t *testing.T) {
 			},
 		}},
 	}}
-
+	
 	for _, testCase := range cases {
 		f := NewFile()
 		const sheet = "Sheet1"
 		const rangeRef = "A1:A1"
-
+		
 		err := f.SetConditionalFormat(sheet, rangeRef, testCase.format)
 		if err != nil {
 			t.Fatalf("%s", err)
 		}
-
+		
 		ws, err := f.workSheetReader(sheet)
 		assert.NoError(t, err)
 		cf := ws.ConditionalFormatting
@@ -235,7 +235,7 @@ func TestNewStyle(t *testing.T) {
 	assert.NoError(t, err)
 	_, err = f.NewStyle(nil)
 	assert.NoError(t, err)
-
+	
 	var exp string
 	_, err = f.NewStyle(&Style{CustomNumFmt: &exp})
 	assert.EqualError(t, err, ErrCustomNumFmt.Error())
@@ -243,7 +243,7 @@ func TestNewStyle(t *testing.T) {
 	assert.EqualError(t, err, ErrFontLength.Error())
 	_, err = f.NewStyle(&Style{Font: &Font{Size: MaxFontSize + 1}})
 	assert.EqualError(t, err, ErrFontSize.Error())
-
+	
 	// Test create numeric custom style
 	numFmt := "####;####"
 	f.Styles.NumFmts = nil
@@ -252,31 +252,31 @@ func TestNewStyle(t *testing.T) {
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, 2, styleID)
-
+	
 	assert.NotNil(t, f.Styles)
 	assert.NotNil(t, f.Styles.CellXfs)
 	assert.NotNil(t, f.Styles.CellXfs.Xf)
-
+	
 	nf := f.Styles.CellXfs.Xf[styleID]
 	assert.Equal(t, 164, *nf.NumFmtID)
-
+	
 	// Test create currency custom style
 	f.Styles.NumFmts = nil
 	styleID, err = f.NewStyle(&Style{
 		Lang:   "ko-kr",
 		NumFmt: 32, // must not be in currencyNumFmt
-
+		
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, 3, styleID)
-
+	
 	assert.NotNil(t, f.Styles)
 	assert.NotNil(t, f.Styles.CellXfs)
 	assert.NotNil(t, f.Styles.CellXfs.Xf)
-
+	
 	nf = f.Styles.CellXfs.Xf[styleID]
 	assert.Equal(t, 32, *nf.NumFmtID)
-
+	
 	// Test set build-in scientific number format
 	styleID, err = f.NewStyle(&Style{NumFmt: 11})
 	assert.NoError(t, err)
@@ -285,7 +285,7 @@ func TestNewStyle(t *testing.T) {
 	rows, err := f.GetRows("Sheet1")
 	assert.NoError(t, err)
 	assert.Equal(t, [][]string{{"1.23E+00", "1.23E+00"}}, rows)
-
+	
 	f = NewFile()
 	// Test currency number format
 	customNumFmt := "[$$-409]#,##0.00"
@@ -294,25 +294,25 @@ func TestNewStyle(t *testing.T) {
 	style2, err := f.NewStyle(&Style{NumFmt: 165})
 	assert.NoError(t, err)
 	assert.Equal(t, style1, style2)
-
+	
 	style3, err := f.NewStyle(&Style{NumFmt: 166})
 	assert.NoError(t, err)
 	assert.Equal(t, 2, style3)
-
+	
 	f = NewFile()
 	f.Styles.NumFmts = nil
 	f.Styles.CellXfs.Xf = nil
 	style4, err := f.NewStyle(&Style{NumFmt: 160, Lang: "unknown"})
 	assert.NoError(t, err)
 	assert.Equal(t, 0, style4)
-
+	
 	f = NewFile()
 	f.Styles.NumFmts = nil
 	f.Styles.CellXfs.Xf = nil
 	style5, err := f.NewStyle(&Style{NumFmt: 160, Lang: "zh-cn"})
 	assert.NoError(t, err)
 	assert.Equal(t, 0, style5)
-
+	
 	// Test create style with unsupported charset style sheet
 	f.Styles = nil
 	f.Pkg.Store(defaultXMLPathStyles, MacintoshCyrillicCharset)
@@ -427,15 +427,15 @@ func TestThemeColor(t *testing.T) {
 
 func TestGetNumFmtID(t *testing.T) {
 	f := NewFile()
-
+	
 	fs1, err := parseFormatStyleSet(&Style{Protection: &Protection{Hidden: false, Locked: false}, NumFmt: 10})
 	assert.NoError(t, err)
 	id1 := getNumFmtID(&xlsxStyleSheet{}, fs1)
-
+	
 	fs2, err := parseFormatStyleSet(&Style{Protection: &Protection{Hidden: false, Locked: false}, NumFmt: 0})
 	assert.NoError(t, err)
 	id2 := getNumFmtID(&xlsxStyleSheet{}, fs2)
-
+	
 	assert.NotEqual(t, id1, id2)
 	assert.NoError(t, f.SaveAs(filepath.Join("test", "TestStyleNumFmt.xlsx")))
 }

@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"encoding/xml"
@@ -154,7 +154,7 @@ func (f *File) addTable(sheet, tableXML string, x1, y1, x2, y2, i int, opts *Tab
 	if y1 == y2 {
 		y2++
 	}
-
+	
 	// Correct table range reference, such correct C1:B3 to B1:C3.
 	ref, err := f.coordinatesToRangeRef([]int{x1, y1, x2, y2})
 	if err != nil {
@@ -325,7 +325,7 @@ func (f *File) autoFilter(sheet, ref string, columns, col int, opts *AutoFilterO
 	if opts == nil || opts.Column == "" || opts.Expression == "" {
 		return nil
 	}
-
+	
 	fsCol, err := ColumnNameToNumber(opts.Column)
 	if err != nil {
 		return err
@@ -334,7 +334,7 @@ func (f *File) autoFilter(sheet, ref string, columns, col int, opts *AutoFilterO
 	if offset < 0 || offset > columns {
 		return fmt.Errorf("incorrect index of column '%s'", opts.Column)
 	}
-
+	
 	filter.FilterColumn = append(filter.FilterColumn, &xlsxFilterColumn{
 		ColID: offset,
 	})

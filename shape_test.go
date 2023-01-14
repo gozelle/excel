@@ -1,9 +1,9 @@
-package excelize
+package excel
 
 import (
 	"path/filepath"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,7 +43,7 @@ func TestAddShape(t *testing.T) {
 	assert.EqualError(t, f.AddShape("Sheet3", "H1", nil), ErrParameterInvalid.Error())
 	assert.EqualError(t, f.AddShape("Sheet1", "A", shape), newCellNameToCoordinatesError("A", newInvalidCellNameError("A")).Error())
 	assert.NoError(t, f.SaveAs(filepath.Join("test", "TestAddShape1.xlsx")))
-
+	
 	// Test add first shape for given sheet
 	f = NewFile()
 	lineWidth := 1.2

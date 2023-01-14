@@ -1,4 +1,4 @@
-package excelize
+package excel
 
 import (
 	"archive/zip"
@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -98,12 +98,12 @@ func TestColumnNumberToName_Error(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Equal(t, "", out)
 	}
-
+	
 	out, err = ColumnNumberToName(0)
 	if assert.Error(t, err) {
 		assert.Equal(t, "", out)
 	}
-
+	
 	_, err = ColumnNumberToName(MaxColumns + 1)
 	assert.ErrorIs(t, err, ErrColumnNumber)
 }
@@ -133,7 +133,7 @@ func TestSplitCellName_Error(t *testing.T) {
 
 func TestJoinCellName_OK(t *testing.T) {
 	const msg = "Cell \"%s%d\""
-
+	
 	for i, col := range validColumns {
 		row := i + 1
 		cell, err := JoinCellName(col.Name, row)
@@ -145,14 +145,14 @@ func TestJoinCellName_OK(t *testing.T) {
 
 func TestJoinCellName_Error(t *testing.T) {
 	const msg = "Cell \"%s%d\""
-
+	
 	test := func(col string, row int) {
 		cell, err := JoinCellName(col, row)
 		if assert.Errorf(t, err, msg, col, row) {
 			assert.Equalf(t, "", cell, msg, col, row)
 		}
 	}
-
+	
 	for _, col := range invalidColumns {
 		test(col.Name, 1)
 		for _, row := range invalidIndexes {
@@ -200,14 +200,14 @@ func TestCoordinatesToCellName_OK(t *testing.T) {
 
 func TestCoordinatesToCellName_Error(t *testing.T) {
 	const msg = "Coordinates [%d, %d]"
-
+	
 	test := func(col, row int) {
 		cell, err := CoordinatesToCellName(col, row)
 		if assert.Errorf(t, err, msg, col, row) {
 			assert.Equalf(t, "", cell, msg, col, row)
 		}
 	}
-
+	
 	for _, col := range invalidIndexes {
 		test(col, 1)
 		for _, row := range invalidIndexes {
@@ -244,7 +244,7 @@ func TestBoolValMarshal(t *testing.T) {
 	data, err := xml.Marshal(node)
 	assert.NoError(t, err)
 	assert.Equal(t, `<xlsxFont><b val="1"></b></xlsxFont>`, string(data))
-
+	
 	node = &xlsxFont{}
 	err = xml.Unmarshal(data, node)
 	assert.NoError(t, err)
@@ -366,11 +366,11 @@ func TestUnzipToTemp(t *testing.T) {
 		"\v\x00\x00\x00\x00\x00")
 	z, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
 	assert.NoError(t, err)
-
+	
 	_, err = f.unzipToTemp(z.File[0])
 	require.Error(t, err)
 	assert.NoError(t, os.Chmod(os.TempDir(), 0o755))
-
+	
 	_, err = f.unzipToTemp(z.File[0])
 	assert.EqualError(t, err, "EOF")
 }

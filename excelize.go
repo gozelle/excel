@@ -10,7 +10,7 @@
 // data. This library needs Go version 1.16 or later.
 //
 // See https://xuri.me/excelize for more information about this package.
-package excelize
+package excel
 
 import (
 	"archive/zip"
@@ -24,7 +24,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-
+	
 	"golang.org/x/net/html/charset"
 )
 

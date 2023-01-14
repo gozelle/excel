@@ -9,12 +9,12 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"path/filepath"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,7 +38,7 @@ func TestSetAppProps(t *testing.T) {
 	f.Pkg.Store(defaultXMLPathDocPropsApp, nil)
 	assert.NoError(t, f.SetAppProps(&AppProperties{}))
 	assert.NoError(t, f.Close())
-
+	
 	// Test unsupported charset
 	f = NewFile()
 	f.Pkg.Store(defaultXMLPathDocPropsApp, MacintoshCyrillicCharset)
@@ -57,7 +57,7 @@ func TestGetAppProps(t *testing.T) {
 	_, err = f.GetAppProps()
 	assert.NoError(t, err)
 	assert.NoError(t, f.Close())
-
+	
 	// Test get application properties with unsupported charset
 	f = NewFile()
 	f.Pkg.Store(defaultXMLPathDocPropsApp, MacintoshCyrillicCharset)
@@ -90,7 +90,7 @@ func TestSetDocProps(t *testing.T) {
 	f.Pkg.Store(defaultXMLPathDocPropsCore, nil)
 	assert.NoError(t, f.SetDocProps(&DocProperties{}))
 	assert.NoError(t, f.Close())
-
+	
 	// Test unsupported charset
 	f = NewFile()
 	f.Pkg.Store(defaultXMLPathDocPropsCore, MacintoshCyrillicCharset)
@@ -109,7 +109,7 @@ func TestGetDocProps(t *testing.T) {
 	_, err = f.GetDocProps()
 	assert.NoError(t, err)
 	assert.NoError(t, f.Close())
-
+	
 	// Test get workbook properties with unsupported charset
 	f = NewFile()
 	f.Pkg.Store(defaultXMLPathDocPropsCore, MacintoshCyrillicCharset)

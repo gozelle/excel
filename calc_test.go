@@ -1,4 +1,4 @@
-package excelize
+package excel
 
 import (
 	"container/list"
@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 	"github.com/xuri/efp"
 )
@@ -4348,7 +4348,7 @@ func TestCalcCellValue(t *testing.T) {
 		assert.EqualError(t, err, expected, formula)
 		assert.Equal(t, "", result, formula)
 	}
-
+	
 	referenceCalc := map[string]string{
 		// MDETERM
 		"=MDETERM(A1:B2)": "-3",
@@ -4376,7 +4376,7 @@ func TestCalcCellValue(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, expected, result, formula)
 	}
-
+	
 	referenceCalcError := map[string]string{
 		// MDETERM
 		"=MDETERM(A1:B3)": "#VALUE!",
@@ -4390,7 +4390,7 @@ func TestCalcCellValue(t *testing.T) {
 		assert.EqualError(t, err, expected, formula)
 		assert.Equal(t, "", result, formula)
 	}
-
+	
 	volatileFuncs := []string{
 		"=NOW()",
 		"=RAND()",
@@ -4403,7 +4403,7 @@ func TestCalcCellValue(t *testing.T) {
 		_, err := f.CalcCellValue("Sheet1", "C1")
 		assert.NoError(t, err)
 	}
-
+	
 	// Test get calculated cell value on not formula cell
 	f := prepareCalcData(cellData)
 	result, err := f.CalcCellValue("Sheet1", "A1")
@@ -4432,30 +4432,30 @@ func TestCalcWithDefinedName(t *testing.T) {
 	assert.NoError(t, f.SetDefinedName(&DefinedName{Name: "defined_name1", RefersTo: "Sheet1!A1", Scope: "Workbook"}))
 	assert.NoError(t, f.SetDefinedName(&DefinedName{Name: "defined_name1", RefersTo: "Sheet1!B1", Scope: "Sheet1"}))
 	assert.NoError(t, f.SetDefinedName(&DefinedName{Name: "defined_name2", RefersTo: "Sheet1!C1", Scope: "Workbook"}))
-
+	
 	assert.NoError(t, f.SetCellFormula("Sheet1", "D1", "=defined_name1"))
 	result, err := f.CalcCellValue("Sheet1", "D1")
 	assert.NoError(t, err)
 	// DefinedName with scope WorkSheet takes precedence over DefinedName with scope Workbook, so we should get B1 value
 	assert.Equal(t, "B1_as_string", result, "=defined_name1")
-
+	
 	assert.NoError(t, f.SetCellFormula("Sheet1", "D1", `=CONCATENATE("<",defined_name1,">")`))
 	result, err = f.CalcCellValue("Sheet1", "D1")
 	assert.NoError(t, err)
 	assert.Equal(t, "<B1_as_string>", result, "=defined_name1")
-
+	
 	// comparing numeric values
 	assert.NoError(t, f.SetCellFormula("Sheet1", "D1", `=123=defined_name2`))
 	result, err = f.CalcCellValue("Sheet1", "D1")
 	assert.NoError(t, err)
 	assert.Equal(t, "TRUE", result, "=123=defined_name2")
-
+	
 	// comparing text values
 	assert.NoError(t, f.SetCellFormula("Sheet1", "D1", `="B1_as_string"=defined_name1`))
 	result, err = f.CalcCellValue("Sheet1", "D1")
 	assert.NoError(t, err)
 	assert.Equal(t, "TRUE", result, `="B1_as_string"=defined_name1`)
-
+	
 	// comparing text values
 	assert.NoError(t, f.SetCellFormula("Sheet1", "D1", `=IF("B1_as_string"=defined_name1,"YES","NO")`))
 	result, err = f.CalcCellValue("Sheet1", "D1")
@@ -4523,11 +4523,11 @@ func TestCalcCompareFormulaArg(t *testing.T) {
 	rhs := newListFormulaArg([]formulaArg{newEmptyFormulaArg(), newEmptyFormulaArg()})
 	assert.Equal(t, compareFormulaArg(lhs, rhs, newNumberFormulaArg(matchModeMaxLess), false), criteriaL)
 	assert.Equal(t, compareFormulaArg(rhs, lhs, newNumberFormulaArg(matchModeMaxLess), false), criteriaG)
-
+	
 	lhs = newListFormulaArg([]formulaArg{newBoolFormulaArg(true)})
 	rhs = newListFormulaArg([]formulaArg{newBoolFormulaArg(true)})
 	assert.Equal(t, compareFormulaArg(lhs, rhs, newNumberFormulaArg(matchModeMaxLess), false), criteriaEq)
-
+	
 	assert.Equal(t, compareFormulaArg(formulaArg{Type: ArgUnknown}, formulaArg{Type: ArgUnknown}, newNumberFormulaArg(matchModeMaxLess), false), criteriaErr)
 }
 
@@ -5234,7 +5234,7 @@ func TestCalcXLOOKUP(t *testing.T) {
 		assert.EqualError(t, err, expected, formula)
 		assert.Equal(t, "", result, formula)
 	}
-
+	
 	cellData = [][]interface{}{
 		{"Salesperson", "Item", "Amont"},
 		{"B", "Apples", 30, 25, 15, 50, 45, 18},

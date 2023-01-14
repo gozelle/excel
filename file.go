@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"archive/zip"
@@ -142,11 +142,11 @@ func (f *File) WriteTo(w io.Writer, opts ...Options) (int64, error) {
 func (f *File) WriteToBuffer() (*bytes.Buffer, error) {
 	buf := new(bytes.Buffer)
 	zw := zip.NewWriter(buf)
-
+	
 	if err := f.writeToZip(zw); err != nil {
 		return buf, zw.Close()
 	}
-
+	
 	if f.options != nil && f.options.Password != "" {
 		if err := zw.Close(); err != nil {
 			return buf, err
@@ -186,7 +186,7 @@ func (f *File) writeToZip(zw *zip.Writer) error {
 	f.sharedStringsWriter()
 	f.styleSheetWriter()
 	f.themeWriter()
-
+	
 	for path, stream := range f.streams {
 		fi, err := zw.Create(path)
 		if err != nil {

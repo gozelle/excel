@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 // getSheetView returns the SheetView object
 func (f *File) getSheetView(sheet string, viewIndex int) (*xlsxSheetView, error) {
@@ -30,7 +30,7 @@ func (f *File) getSheetView(sheet string, viewIndex int) (*xlsxSheetView, error)
 	} else if viewIndex >= len(ws.SheetViews.SheetView) {
 		return nil, newViewIdxError(viewIndex)
 	}
-
+	
 	return &(ws.SheetViews.SheetView[viewIndex]), err
 }
 

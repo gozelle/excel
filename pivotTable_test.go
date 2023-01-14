@@ -1,4 +1,4 @@
-package excelize
+package excel
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
@@ -54,7 +54,7 @@ func TestAddPivotTable(t *testing.T) {
 		ShowColHeaders:  true,
 		ShowLastColumn:  true,
 	}))
-
+	
 	assert.NoError(t, f.AddPivotTable(&PivotTableOptions{
 		DataRange:       "Sheet1!$A$1:$E$31",
 		PivotTableRange: "Sheet1!$W$2:$AC$34",
@@ -157,7 +157,7 @@ func TestAddPivotTable(t *testing.T) {
 		ShowColHeaders:  true,
 		ShowLastColumn:  true,
 	}))
-
+	
 	// Test empty pivot table options
 	assert.EqualError(t, f.AddPivotTable(nil), ErrParameterRequired.Error())
 	// Test invalid data range
@@ -225,7 +225,7 @@ func TestAddPivotTable(t *testing.T) {
 		Columns:         []PivotTableField{{Data: "Type", DefaultSubtotal: true}},
 		Data:            []PivotTableField{{Data: "Sales", Subtotal: "-", Name: strings.Repeat("s", MaxFieldLength+1)}},
 	}))
-
+	
 	// Test add pivot table with invalid sheet name
 	assert.EqualError(t, f.AddPivotTable(&PivotTableOptions{
 		DataRange:       "Sheet:1!$A$1:$E$31",

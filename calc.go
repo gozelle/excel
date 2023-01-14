@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"bytes"
@@ -30,7 +30,7 @@ import (
 	"time"
 	"unicode"
 	"unsafe"
-
+	
 	"github.com/xuri/efp"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -58,7 +58,7 @@ const (
 	criteriaG
 	criteriaErr
 	criteriaRegexp
-
+	
 	categoryWeightAndMass
 	categoryDistance
 	categoryTime
@@ -72,17 +72,17 @@ const (
 	categoryArea
 	categoryInformation
 	categorySpeed
-
+	
 	matchModeExact      = 0
 	matchModeMinGreater = 1
 	matchModeMaxLess    = -1
 	matchModeWildcard   = 2
-
+	
 	searchModeLinear        = 1
 	searchModeReverseLinear = -1
 	searchModeAscBinary     = 2
 	searchModeDescBinary    = -2
-
+	
 	maxFinancialIterations = 128
 	financialPrecision     = 1.0e-08
 	// Date and time format regular expressions
@@ -884,14 +884,14 @@ func (f *File) evalInfixExp(ctx *calcContext, sheet, cell string, tokens []efp.T
 	var inArray, inArrayRow bool
 	for i := 0; i < len(tokens); i++ {
 		token := tokens[i]
-
+		
 		// out of function stack
 		if opfStack.Len() == 0 {
 			if err = f.parseToken(ctx, sheet, token, opdStack, optStack); err != nil {
 				return newEmptyFormulaArg(), err
 			}
 		}
-
+		
 		// function start
 		if isFunctionStartToken(token) {
 			if token.TValue == "ARRAY" {
@@ -907,14 +907,14 @@ func (f *File) evalInfixExp(ctx *calcContext, sheet, cell string, tokens []efp.T
 			opftStack.Push(token) // to know which operators belong to a function use the function as a separator
 			continue
 		}
-
+		
 		// in function stack, walk 2 token at once
 		if opfStack.Len() > 0 {
 			var nextToken efp.Token
 			if i+1 < len(tokens) {
 				nextToken = tokens[i+1]
 			}
-
+			
 			// current token is args or range, skip next token, order required: parse reference first
 			if token.TSubType == efp.TokenSubTypeRange {
 				if opftStack.Peek().(efp.Token) != opfStack.Peek().(efp.Token) {
@@ -956,19 +956,19 @@ func (f *File) evalInfixExp(ctx *calcContext, sheet, cell string, tokens []efp.T
 					continue
 				}
 			}
-
+			
 			if isEndParenthesesToken(token) && isBeginParenthesesToken(opftStack.Peek().(efp.Token)) {
 				if arg := argsStack.Peek().(*list.List).Back(); arg != nil {
 					opfdStack.Push(arg.Value.(formulaArg))
 					argsStack.Peek().(*list.List).Remove(arg)
 				}
 			}
-
+			
 			// check current token is opft
 			if err = f.parseToken(ctx, sheet, token, opfdStack, opftStack); err != nil {
 				return newEmptyFormulaArg(), err
 			}
-
+			
 			// current token is arg
 			if token.TType == efp.TokenTypeArgument {
 				for opftStack.Peek().(efp.Token) != opfStack.Peek().(efp.Token) {
@@ -984,7 +984,7 @@ func (f *File) evalInfixExp(ctx *calcContext, sheet, cell string, tokens []efp.T
 				}
 				continue
 			}
-
+			
 			if inArrayRow && isOperand(token) {
 				continue
 			}
@@ -6866,7 +6866,7 @@ func (fn *formulaFuncs) BINOMDIST(argsList *list.List) formulaArg {
 	if probability = argsList.Back().Prev().Value.(formulaArg).ToNumber(); probability.Type != ArgNumber {
 		return probability
 	}
-
+	
 	if probability.Number < 0 || probability.Number > 1 {
 		return newErrorFormulaArg(formulaErrorNUM, formulaErrorNUM)
 	}
@@ -10945,7 +10945,7 @@ func (fn *formulaFuncs) TRIMMEAN(argsList *list.List) formulaArg {
 			arr = arr[:len(arr)-1]
 		}
 	}
-
+	
 	args := list.New().Init()
 	for _, ele := range arr {
 		args.PushBack(newNumberFormulaArg(ele))
@@ -13861,7 +13861,7 @@ func (fn *formulaFuncs) IF(argsList *list.List) formulaArg {
 	case ArgNumber:
 		cond = token.Number == 1
 	}
-
+	
 	if argsList.Len() == 1 {
 		return newBoolFormulaArg(cond)
 	}

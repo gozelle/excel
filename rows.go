@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"bytes"
@@ -19,7 +19,7 @@ import (
 	"math"
 	"os"
 	"strconv"
-
+	
 	"github.com/mohae/deepcopy"
 )
 
@@ -317,7 +317,7 @@ func (f *File) getFromStringItem(index int) string {
 			if inElement == "si" {
 				si := xlsxSI{}
 				_ = decoder.DecodeElement(&si, &xmlElement)
-
+				
 				startIdx := offset
 				n, _ := f.sharedStringTemp.WriteString(si.String())
 				offset += uint(n)
@@ -359,9 +359,9 @@ func (f *File) SetRowHeight(sheet string, row int, height float64) error {
 	if err != nil {
 		return err
 	}
-
+	
 	prepareSheetXML(ws, 0, row)
-
+	
 	rowIdx := row - 1
 	ws.SheetData.Row[rowIdx].Ht = height
 	ws.SheetData.Row[rowIdx].CustomHeight = true
@@ -453,7 +453,7 @@ func (f *File) sharedStringsReader() (*xlsxSST, error) {
 		// Update workbook.xml.rels
 		f.addRels(relPath, SourceRelationshipSharedStrings, "/xl/sharedStrings.xml", "")
 	}
-
+	
 	return f.SharedStrings, nil
 }
 
@@ -465,7 +465,7 @@ func (f *File) SetRowVisible(sheet string, row int, visible bool) error {
 	if row < 1 {
 		return newInvalidRowNumberError(row)
 	}
-
+	
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
 		return err
@@ -484,7 +484,7 @@ func (f *File) GetRowVisible(sheet string, row int) (bool, error) {
 	if row < 1 {
 		return false, newInvalidRowNumberError(row)
 	}
-
+	
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
 		return false, err
@@ -548,7 +548,7 @@ func (f *File) RemoveRow(sheet string, row int) error {
 	if row < 1 {
 		return newInvalidRowNumberError(row)
 	}
-
+	
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
 		return err
@@ -616,19 +616,19 @@ func (f *File) DuplicateRowTo(sheet string, row, row2 int) error {
 	if row < 1 {
 		return newInvalidRowNumberError(row)
 	}
-
+	
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
 		return err
 	}
-
+	
 	if row2 < 1 || row == row2 {
 		return nil
 	}
-
+	
 	var ok bool
 	var rowCopy xlsxRow
-
+	
 	for i, r := range ws.SheetData.Row {
 		if r.R == row {
 			rowCopy = deepcopy.Copy(ws.SheetData.Row[i]).(xlsxRow)
@@ -636,15 +636,15 @@ func (f *File) DuplicateRowTo(sheet string, row, row2 int) error {
 			break
 		}
 	}
-
+	
 	if err := f.adjustHelper(sheet, rows, row2, 1); err != nil {
 		return err
 	}
-
+	
 	if !ok {
 		return nil
 	}
-
+	
 	idx2 := -1
 	for i, r := range ws.SheetData.Row {
 		if r.R == row2 {
@@ -655,10 +655,10 @@ func (f *File) DuplicateRowTo(sheet string, row, row2 int) error {
 	if idx2 == -1 && len(ws.SheetData.Row) >= row2 {
 		return nil
 	}
-
+	
 	rowCopy.C = append(make([]xlsxC, 0, len(rowCopy.C)), rowCopy.C...)
 	f.adjustSingleRowDimensions(&rowCopy, row2)
-
+	
 	if idx2 != -1 {
 		ws.SheetData.Row[idx2] = rowCopy
 	} else {
@@ -727,7 +727,7 @@ func (f *File) duplicateMergeCells(sheet string, ws *xlsxWorksheet, row, row2 in
 func checkRow(ws *xlsxWorksheet) error {
 	for rowIdx := range ws.SheetData.Row {
 		rowData := &ws.SheetData.Row[rowIdx]
-
+		
 		colCount := len(rowData.C)
 		if colCount == 0 {
 			continue
@@ -752,13 +752,13 @@ func checkRow(ws *xlsxWorksheet) error {
 		if err != nil {
 			return err
 		}
-
+		
 		if colCount < lastCol {
 			sourceList := rowData.C
 			targetList := make([]xlsxC, 0, lastCol)
-
+			
 			rowData.C = ws.SheetData.Row[rowIdx].C[:0]
-
+			
 			for colIdx := 0; colIdx < lastCol; colIdx++ {
 				cellName, err := CoordinatesToCellName(colIdx+1, rowIdx+1)
 				if err != nil {
@@ -766,9 +766,9 @@ func checkRow(ws *xlsxWorksheet) error {
 				}
 				targetList = append(targetList, xlsxC{R: cellName})
 			}
-
+			
 			rowData.C = targetList
-
+			
 			for colIdx := range sourceList {
 				colData := &sourceList[colIdx]
 				colNum, _, err := CellNameToCoordinates(colData.R)

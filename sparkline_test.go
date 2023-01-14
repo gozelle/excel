@@ -1,17 +1,17 @@
-package excelize
+package excel
 
 import (
 	"fmt"
 	"path/filepath"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAddSparkline(t *testing.T) {
 	f, err := prepareSparklineDataset()
 	assert.NoError(t, err)
-
+	
 	// Set the columns widths to make the output clearer
 	style, err := f.NewStyle(&Style{Font: &Font{Bold: true}})
 	assert.NoError(t, err)
@@ -20,40 +20,40 @@ func TestAddSparkline(t *testing.T) {
 	assert.NoError(t, err)
 	viewOpts.ZoomScale = float64Ptr(150)
 	assert.NoError(t, f.SetSheetView("Sheet1", 0, &viewOpts))
-
+	
 	assert.NoError(t, f.SetColWidth("Sheet1", "A", "A", 14))
 	assert.NoError(t, f.SetColWidth("Sheet1", "B", "B", 50))
 	// Headings
 	assert.NoError(t, f.SetCellValue("Sheet1", "A1", "Sparkline"))
 	assert.NoError(t, f.SetCellValue("Sheet1", "B1", "Description"))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B2", `A default "line" sparkline.`))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A2"},
 		Range:    []string{"Sheet3!A1:J1"},
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B3", `A default "column" sparkline.`))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A3"},
 		Range:    []string{"Sheet3!A2:J2"},
 		Type:     "column",
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B4", `A default "win/loss" sparkline.`))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A4"},
 		Range:    []string{"Sheet3!A3:J3"},
 		Type:     "win_loss",
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B6", "Line with markers."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A6"},
 		Range:    []string{"Sheet3!A1:J1"},
 		Markers:  true,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B7", "Line with high and low points."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A7"},
@@ -61,7 +61,7 @@ func TestAddSparkline(t *testing.T) {
 		High:     true,
 		Low:      true,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B8", "Line with first and last point markers."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A8"},
@@ -69,28 +69,28 @@ func TestAddSparkline(t *testing.T) {
 		First:    true,
 		Last:     true,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B9", "Line with negative point markers."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A9"},
 		Range:    []string{"Sheet3!A1:J1"},
 		Negative: true,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B10", "Line with axis."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A10"},
 		Range:    []string{"Sheet3!A1:J1"},
 		Axis:     true,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B12", "Column with default style (1)."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A12"},
 		Range:    []string{"Sheet3!A2:J2"},
 		Type:     "column",
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B13", "Column with style 2."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A13"},
@@ -98,7 +98,7 @@ func TestAddSparkline(t *testing.T) {
 		Type:     "column",
 		Style:    2,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B14", "Column with style 3."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A14"},
@@ -106,7 +106,7 @@ func TestAddSparkline(t *testing.T) {
 		Type:     "column",
 		Style:    3,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B15", "Column with style 4."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A15"},
@@ -114,7 +114,7 @@ func TestAddSparkline(t *testing.T) {
 		Type:     "column",
 		Style:    4,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B16", "Column with style 5."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A16"},
@@ -122,7 +122,7 @@ func TestAddSparkline(t *testing.T) {
 		Type:     "column",
 		Style:    5,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B17", "Column with style 6."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A17"},
@@ -130,7 +130,7 @@ func TestAddSparkline(t *testing.T) {
 		Type:     "column",
 		Style:    6,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B18", "Column with a user defined color."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location:    []string{"A18"},
@@ -138,14 +138,14 @@ func TestAddSparkline(t *testing.T) {
 		Type:        "column",
 		SeriesColor: "#E965E0",
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B20", "A win/loss sparkline."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A20"},
 		Range:    []string{"Sheet3!A3:J3"},
 		Type:     "win_loss",
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B21", "A win/loss sparkline with negative points highlighted."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A21"},
@@ -153,7 +153,7 @@ func TestAddSparkline(t *testing.T) {
 		Type:     "win_loss",
 		Negative: true,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B23", "A left to right column (the default)."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A23"},
@@ -161,7 +161,7 @@ func TestAddSparkline(t *testing.T) {
 		Type:     "column",
 		Style:    20,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B24", "A right to left column."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A24"},
@@ -170,7 +170,7 @@ func TestAddSparkline(t *testing.T) {
 		Style:    20,
 		Reverse:  true,
 	}))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B25", "Sparkline and text in one cell."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A25"},
@@ -179,14 +179,14 @@ func TestAddSparkline(t *testing.T) {
 		Style:    20,
 	}))
 	assert.NoError(t, f.SetCellValue("Sheet1", "A25", "Growth"))
-
+	
 	assert.NoError(t, f.SetCellValue("Sheet1", "B27", "A grouped sparkline. Changes are applied to all three."))
 	assert.NoError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"A27", "A28", "A29"},
 		Range:    []string{"Sheet3!A5:J5", "Sheet3!A6:J6", "Sheet3!A7:J7"},
 		Markers:  true,
 	}))
-
+	
 	// Sheet2 sections
 	assert.NoError(t, f.AddSparkline("Sheet2", &SparklineOptions{
 		Location: []string{"F3"},
@@ -194,38 +194,38 @@ func TestAddSparkline(t *testing.T) {
 		Type:     "win_loss",
 		Negative: true,
 	}))
-
+	
 	assert.NoError(t, f.AddSparkline("Sheet2", &SparklineOptions{
 		Location: []string{"F1"},
 		Range:    []string{"Sheet2!A1:E1"},
 		Markers:  true,
 	}))
-
+	
 	assert.NoError(t, f.AddSparkline("Sheet2", &SparklineOptions{
 		Location: []string{"F2"},
 		Range:    []string{"Sheet2!A2:E2"},
 		Type:     "column",
 		Style:    12,
 	}))
-
+	
 	assert.NoError(t, f.AddSparkline("Sheet2", &SparklineOptions{
 		Location: []string{"F3"},
 		Range:    []string{"Sheet2!A3:E3"},
 		Type:     "win_loss",
 		Negative: true,
 	}))
-
+	
 	// Save spreadsheet by the given path
 	assert.NoError(t, f.SaveAs(filepath.Join("test", "TestAddSparkline.xlsx")))
-
+	
 	// Test error exceptions
 	assert.EqualError(t, f.AddSparkline("SheetN", &SparklineOptions{
 		Location: []string{"F3"},
 		Range:    []string{"Sheet2!A3:E3"},
 	}), "sheet SheetN does not exist")
-
+	
 	assert.EqualError(t, f.AddSparkline("Sheet1", nil), ErrParameterRequired.Error())
-
+	
 	// Test add sparkline with invalid sheet name
 	assert.EqualError(t, f.AddSparkline("Sheet:1", &SparklineOptions{
 		Location: []string{"F3"},
@@ -233,38 +233,38 @@ func TestAddSparkline(t *testing.T) {
 		Type:     "win_loss",
 		Negative: true,
 	}), ErrSheetNameInvalid.Error())
-
+	
 	assert.EqualError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Range: []string{"Sheet2!A3:E3"},
 	}), ErrSparklineLocation.Error())
-
+	
 	assert.EqualError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"F3"},
 	}), ErrSparklineRange.Error())
-
+	
 	assert.EqualError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"F2", "F3"},
 		Range:    []string{"Sheet2!A3:E3"},
 	}), ErrSparkline.Error())
-
+	
 	assert.EqualError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"F3"},
 		Range:    []string{"Sheet2!A3:E3"},
 		Type:     "unknown_type",
 	}), ErrSparklineType.Error())
-
+	
 	assert.EqualError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"F3"},
 		Range:    []string{"Sheet2!A3:E3"},
 		Style:    -1,
 	}), ErrSparklineStyle.Error())
-
+	
 	assert.EqualError(t, f.AddSparkline("Sheet1", &SparklineOptions{
 		Location: []string{"F3"},
 		Range:    []string{"Sheet2!A3:E3"},
 		Style:    -1,
 	}), ErrSparklineStyle.Error())
-
+	
 	ws, ok := f.Sheet.Load("xl/worksheets/sheet1.xml")
 	assert.True(t, ok)
 	ws.(*xlsxWorksheet).ExtLst.Ext = `<extLst>

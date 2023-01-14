@@ -9,22 +9,22 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"math"
 	"path/filepath"
 	"strings"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDataValidation(t *testing.T) {
 	resultFile := filepath.Join("test", "TestDataValidation.xlsx")
-
+	
 	f := NewFile()
-
+	
 	dvRange := NewDataValidation(true)
 	dvRange.Sqref = "A1:B2"
 	assert.NoError(t, dvRange.SetRange(10, 20, DataValidationTypeWhole, DataValidationOperatorBetween))
@@ -32,25 +32,25 @@ func TestDataValidation(t *testing.T) {
 	dvRange.SetError(DataValidationErrorStyleWarning, "error title", "error body")
 	dvRange.SetError(DataValidationErrorStyleInformation, "error title", "error body")
 	assert.NoError(t, f.AddDataValidation("Sheet1", dvRange))
-
+	
 	dataValidations, err := f.GetDataValidations("Sheet1")
 	assert.NoError(t, err)
 	assert.Equal(t, len(dataValidations), 1)
-
+	
 	assert.NoError(t, f.SaveAs(resultFile))
-
+	
 	dvRange = NewDataValidation(true)
 	dvRange.Sqref = "A3:B4"
 	assert.NoError(t, dvRange.SetRange(10, 20, DataValidationTypeWhole, DataValidationOperatorGreaterThan))
 	dvRange.SetInput("input title", "input body")
 	assert.NoError(t, f.AddDataValidation("Sheet1", dvRange))
-
+	
 	dataValidations, err = f.GetDataValidations("Sheet1")
 	assert.NoError(t, err)
 	assert.Equal(t, len(dataValidations), 2)
-
+	
 	assert.NoError(t, f.SaveAs(resultFile))
-
+	
 	_, err = f.NewSheet("Sheet2")
 	assert.NoError(t, err)
 	assert.NoError(t, f.SetSheetRow("Sheet2", "A2", &[]interface{}{"B2", 1}))
@@ -66,7 +66,7 @@ func TestDataValidation(t *testing.T) {
 	dataValidations, err = f.GetDataValidations("Sheet2")
 	assert.NoError(t, err)
 	assert.Equal(t, len(dataValidations), 1)
-
+	
 	dvRange = NewDataValidation(true)
 	dvRange.Sqref = "A5:B6"
 	for _, listValid := range [][]string{
@@ -84,20 +84,20 @@ func TestDataValidation(t *testing.T) {
 	}
 	assert.Equal(t, `<formula1>"A&lt;,B&gt;,C"",D	,E',F"</formula1>`, dvRange.Formula1)
 	assert.NoError(t, f.AddDataValidation("Sheet1", dvRange))
-
+	
 	dataValidations, err = f.GetDataValidations("Sheet1")
 	assert.NoError(t, err)
 	assert.Equal(t, len(dataValidations), 3)
-
+	
 	// Test get data validation on no exists worksheet
 	_, err = f.GetDataValidations("SheetN")
 	assert.EqualError(t, err, "sheet SheetN does not exist")
 	// Test get data validation with invalid sheet name
 	_, err = f.GetDataValidations("Sheet:1")
 	assert.EqualError(t, err, ErrSheetNameInvalid.Error())
-
+	
 	assert.NoError(t, f.SaveAs(resultFile))
-
+	
 	// Test get data validation on a worksheet without data validation settings
 	f = NewFile()
 	dataValidations, err = f.GetDataValidations("Sheet1")
@@ -107,19 +107,19 @@ func TestDataValidation(t *testing.T) {
 
 func TestDataValidationError(t *testing.T) {
 	resultFile := filepath.Join("test", "TestDataValidationError.xlsx")
-
+	
 	f := NewFile()
 	assert.NoError(t, f.SetCellStr("Sheet1", "E1", "E1"))
 	assert.NoError(t, f.SetCellStr("Sheet1", "E2", "E2"))
 	assert.NoError(t, f.SetCellStr("Sheet1", "E3", "E3"))
-
+	
 	dvRange := NewDataValidation(true)
 	dvRange.SetSqref("A7:B8")
 	dvRange.SetSqref("A7:B8")
 	dvRange.SetSqrefDropList("$E$1:$E$3")
-
+	
 	assert.NoError(t, f.AddDataValidation("Sheet1", dvRange))
-
+	
 	dvRange = NewDataValidation(true)
 	err := dvRange.SetDropList(make([]string, 258))
 	if dvRange.Formula1 != "" {
@@ -131,9 +131,9 @@ func TestDataValidationError(t *testing.T) {
 	assert.EqualError(t, dvRange.SetRange(10, nil, DataValidationTypeWhole, DataValidationOperatorBetween), ErrParameterInvalid.Error())
 	assert.NoError(t, dvRange.SetRange(10, 20, DataValidationTypeWhole, DataValidationOperatorGreaterThan))
 	dvRange.SetSqref("A9:B10")
-
+	
 	assert.NoError(t, f.AddDataValidation("Sheet1", dvRange))
-
+	
 	// Test width invalid data validation formula
 	prevFormula1 := dvRange.Formula1
 	for _, keys := range [][]string{
@@ -159,11 +159,11 @@ func TestDataValidationError(t *testing.T) {
 		math.SmallestNonzeroFloat64, math.MaxFloat64,
 		DataValidationTypeWhole, DataValidationOperatorGreaterThan), ErrDataValidationRange.Error())
 	assert.NoError(t, f.SaveAs(resultFile))
-
+	
 	// Test add data validation on no exists worksheet
 	f = NewFile()
 	assert.EqualError(t, f.AddDataValidation("SheetN", nil), "sheet SheetN does not exist")
-
+	
 	// Test add data validation with invalid sheet name
 	f = NewFile()
 	assert.EqualError(t, f.AddDataValidation("Sheet:1", nil), ErrSheetNameInvalid.Error())
@@ -172,42 +172,42 @@ func TestDataValidationError(t *testing.T) {
 func TestDeleteDataValidation(t *testing.T) {
 	f := NewFile()
 	assert.NoError(t, f.DeleteDataValidation("Sheet1", "A1:B2"))
-
+	
 	dvRange := NewDataValidation(true)
 	dvRange.Sqref = "A1:B2"
 	assert.NoError(t, dvRange.SetRange(10, 20, DataValidationTypeWhole, DataValidationOperatorBetween))
 	dvRange.SetInput("input title", "input body")
 	assert.NoError(t, f.AddDataValidation("Sheet1", dvRange))
 	assert.NoError(t, f.DeleteDataValidation("Sheet1", "A1:B2"))
-
+	
 	dvRange.Sqref = "A1"
 	assert.NoError(t, f.AddDataValidation("Sheet1", dvRange))
 	assert.NoError(t, f.DeleteDataValidation("Sheet1", "B1"))
 	assert.NoError(t, f.DeleteDataValidation("Sheet1", "A1"))
-
+	
 	dvRange.Sqref = "C2:C5"
 	assert.NoError(t, f.AddDataValidation("Sheet1", dvRange))
 	assert.NoError(t, f.DeleteDataValidation("Sheet1", "C4"))
-
+	
 	dvRange = NewDataValidation(true)
 	dvRange.Sqref = "D2:D2 D3 D4"
 	assert.NoError(t, dvRange.SetRange(10, 20, DataValidationTypeWhole, DataValidationOperatorBetween))
 	dvRange.SetInput("input title", "input body")
 	assert.NoError(t, f.AddDataValidation("Sheet1", dvRange))
 	assert.NoError(t, f.DeleteDataValidation("Sheet1", "D3"))
-
+	
 	assert.NoError(t, f.SaveAs(filepath.Join("test", "TestDeleteDataValidation.xlsx")))
-
+	
 	dvRange.Sqref = "A"
 	assert.NoError(t, f.AddDataValidation("Sheet1", dvRange))
 	assert.EqualError(t, f.DeleteDataValidation("Sheet1", "A1"), newCellNameToCoordinatesError("A", newInvalidCellNameError("A")).Error())
-
+	
 	assert.EqualError(t, f.DeleteDataValidation("Sheet1", "A1:A"), newCellNameToCoordinatesError("A", newInvalidCellNameError("A")).Error())
 	ws, ok := f.Sheet.Load("xl/worksheets/sheet1.xml")
 	assert.True(t, ok)
 	ws.(*xlsxWorksheet).DataValidations.DataValidation[0].Sqref = "A1:A"
 	assert.EqualError(t, f.DeleteDataValidation("Sheet1", "A1:B2"), newCellNameToCoordinatesError("A", newInvalidCellNameError("A")).Error())
-
+	
 	// Test delete data validation on no exists worksheet
 	assert.EqualError(t, f.DeleteDataValidation("SheetN", "A1:B2"), "sheet SheetN does not exist")
 	// Test delete all data validation with invalid sheet name

@@ -1,4 +1,4 @@
-package excelize
+package excel
 
 import (
 	"encoding/xml"
@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,7 +39,7 @@ func TestNewSheet(t *testing.T) {
 
 func TestSetPanes(t *testing.T) {
 	f := NewFile()
-
+	
 	assert.NoError(t, f.SetPanes("Sheet1", &Panes{Freeze: false, Split: false}))
 	_, err := f.NewSheet("Panes 2")
 	assert.NoError(t, err)
@@ -139,13 +139,13 @@ func TestSearchSheet(t *testing.T) {
 	assert.NoError(t, err)
 	assert.EqualValues(t, expected, result)
 	assert.NoError(t, f.Close())
-
+	
 	// Test search worksheet data after set cell value
 	f = NewFile()
 	assert.NoError(t, f.SetCellValue("Sheet1", "A1", true))
 	_, err = f.SearchSheet("Sheet1", "")
 	assert.NoError(t, err)
-
+	
 	f = NewFile()
 	f.Sheet.Delete("xl/worksheets/sheet1.xml")
 	f.Pkg.Store("xl/worksheets/sheet1.xml", []byte(`<worksheet><sheetData><row r="A"><c r="2" t="inlineStr"><is><t>A</t></is></c></row></sheetData></worksheet>`))
@@ -153,17 +153,17 @@ func TestSearchSheet(t *testing.T) {
 	result, err = f.SearchSheet("Sheet1", "A")
 	assert.EqualError(t, err, "strconv.Atoi: parsing \"A\": invalid syntax")
 	assert.Equal(t, []string(nil), result)
-
+	
 	f.Pkg.Store("xl/worksheets/sheet1.xml", []byte(`<worksheet><sheetData><row r="2"><c r="A" t="inlineStr"><is><t>A</t></is></c></row></sheetData></worksheet>`))
 	result, err = f.SearchSheet("Sheet1", "A")
 	assert.EqualError(t, err, newCellNameToCoordinatesError("A", newInvalidCellNameError("A")).Error())
 	assert.Equal(t, []string(nil), result)
-
+	
 	f.Pkg.Store("xl/worksheets/sheet1.xml", []byte(`<worksheet><sheetData><row r="0"><c r="A1" t="inlineStr"><is><t>A</t></is></c></row></sheetData></worksheet>`))
 	result, err = f.SearchSheet("Sheet1", "A")
 	assert.EqualError(t, err, "invalid cell reference [1, 0]")
 	assert.Equal(t, []string(nil), result)
-
+	
 	// Test search sheet with unsupported charset shared strings table
 	f.SharedStrings = nil
 	f.Pkg.Store(defaultXMLPathSharedStrings, MacintoshCyrillicCharset)
@@ -217,7 +217,7 @@ func TestSetHeaderFooter(t *testing.T) {
 	assert.EqualError(t, f.SetHeaderFooter("Sheet1", &HeaderFooterOptions{
 		OddHeader: strings.Repeat("c", MaxFieldLength+1),
 	}), newFieldLengthError("OddHeader").Error())
-
+	
 	assert.NoError(t, f.SetHeaderFooter("Sheet1", nil))
 	text := strings.Repeat("一", MaxFieldLength)
 	assert.NoError(t, f.SetHeaderFooter("Sheet1", &HeaderFooterOptions{
@@ -329,25 +329,25 @@ func TestInsertPageBreak(t *testing.T) {
 func TestRemovePageBreak(t *testing.T) {
 	f := NewFile()
 	assert.NoError(t, f.RemovePageBreak("Sheet1", "A2"))
-
+	
 	assert.NoError(t, f.InsertPageBreak("Sheet1", "A2"))
 	assert.NoError(t, f.InsertPageBreak("Sheet1", "B2"))
 	assert.NoError(t, f.RemovePageBreak("Sheet1", "A1"))
 	assert.NoError(t, f.RemovePageBreak("Sheet1", "B2"))
-
+	
 	assert.NoError(t, f.InsertPageBreak("Sheet1", "C3"))
 	assert.NoError(t, f.RemovePageBreak("Sheet1", "C3"))
-
+	
 	assert.NoError(t, f.InsertPageBreak("Sheet1", "A3"))
 	assert.NoError(t, f.RemovePageBreak("Sheet1", "B3"))
 	assert.NoError(t, f.RemovePageBreak("Sheet1", "A3"))
-
+	
 	_, err := f.NewSheet("Sheet2")
 	assert.NoError(t, err)
 	assert.NoError(t, f.InsertPageBreak("Sheet2", "B2"))
 	assert.NoError(t, f.InsertPageBreak("Sheet2", "C2"))
 	assert.NoError(t, f.RemovePageBreak("Sheet2", "B2"))
-
+	
 	assert.EqualError(t, f.RemovePageBreak("Sheet1", "A"), newCellNameToCoordinatesError("A", newInvalidCellNameError("A")).Error())
 	assert.EqualError(t, f.RemovePageBreak("SheetN", "C3"), "sheet SheetN does not exist")
 	// Test remove page break with invalid sheet name
@@ -378,7 +378,7 @@ func TestGetSheetMap(t *testing.T) {
 	}
 	assert.Equal(t, len(sheetMap), 2)
 	assert.NoError(t, f.Close())
-
+	
 	f = NewFile()
 	f.WorkBook = nil
 	f.Pkg.Store(defaultXMLPathWorkbook, MacintoshCyrillicCharset)
@@ -402,7 +402,7 @@ func TestSetActiveSheet(t *testing.T) {
 	f = NewFile()
 	f.SetActiveSheet(-1)
 	assert.Equal(t, f.GetActiveSheetIndex(), 0)
-
+	
 	f = NewFile()
 	f.WorkBook.BookViews = nil
 	idx, err := f.NewSheet("Sheet2")
@@ -572,7 +572,7 @@ func TestAttrValToBool(t *testing.T) {
 		{Name: xml.Name{Local: "hidden"}},
 	})
 	assert.EqualError(t, err, `strconv.ParseBool: parsing "": invalid syntax`)
-
+	
 	got, err := attrValToBool("hidden", []xml.Attr{
 		{Name: xml.Name{Local: "hidden"}, Value: "1"},
 	})
@@ -585,7 +585,7 @@ func TestAttrValToFloat(t *testing.T) {
 		{Name: xml.Name{Local: "ht"}},
 	})
 	assert.EqualError(t, err, `strconv.ParseFloat: parsing "": invalid syntax`)
-
+	
 	got, err := attrValToFloat("ht", []xml.Attr{
 		{Name: xml.Name{Local: "ht"}, Value: "42.1"},
 	})
@@ -616,10 +616,10 @@ func TestSetSheetBackgroundFromBytes(t *testing.T) {
 	content, err := io.ReadAll(img)
 	assert.NoError(t, err)
 	assert.EqualError(t, f.SetSheetBackgroundFromBytes("Sheet:1", ".png", content), ErrSheetNameInvalid.Error())
-
+	
 	assert.NoError(t, f.SaveAs(filepath.Join("test", "TestSetSheetBackgroundFromBytes.xlsx")))
 	assert.NoError(t, f.Close())
-
+	
 	assert.EqualError(t, f.SetSheetBackgroundFromBytes("Sheet1", ".svg", nil), ErrParameterInvalid.Error())
 }
 

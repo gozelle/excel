@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"bytes"
@@ -142,7 +142,7 @@ func (f *File) addChart(opts *Chart, comboCharts []*Chart) {
 				LegendPos: &attrValString{Val: stringPtr(chartLegendPosition[opts.Legend.Position])},
 				Overlay:   &attrValBool{Val: boolPtr(false)},
 			},
-
+			
 			PlotVisOnly:      &attrValBool{Val: boolPtr(false)},
 			DispBlanksAs:     &attrValString{Val: stringPtr(opts.ShowBlanksAs)},
 			ShowDLblsOverMax: &attrValBool{Val: boolPtr(false)},
@@ -518,7 +518,7 @@ func (f *File) drawDoughnutChart(opts *Chart) *cPlotArea {
 	if opts.HoleSize > 0 && opts.HoleSize <= 90 {
 		holeSize = opts.HoleSize
 	}
-
+	
 	return &cPlotArea{
 		DoughnutChart: &cCharts{
 			VaryColors: &attrValBool{
@@ -793,14 +793,14 @@ func (f *File) drawChartSeries(opts *Chart) *[]cSer {
 func (f *File) drawChartSeriesSpPr(i int, opts *Chart) *cSpPr {
 	var srgbClr *attrValString
 	var schemeClr *aSchemeClr
-
+	
 	if color := stringPtr(opts.Series[i].Line.Color); *color != "" {
 		*color = strings.TrimPrefix(*color, "#")
 		srgbClr = &attrValString{Val: color}
 	} else {
 		schemeClr = &aSchemeClr{Val: "accent" + strconv.Itoa((opts.order+i)%6+1)}
 	}
-
+	
 	spPrScatter := &cSpPr{
 		Ln: &aLn{
 			W:      25400,
@@ -1249,7 +1249,7 @@ func (f *File) addDrawingChart(sheet, drawingXML, cell string, width, height, rI
 	}
 	colIdx := col - 1
 	rowIdx := row - 1
-
+	
 	width = int(float64(width) * opts.ScaleX)
 	height = int(float64(height) * opts.ScaleY)
 	colStart, rowStart, colEnd, rowEnd, x2, y2 := f.positionObjectPixels(sheet, colIdx, rowIdx, opts.OffsetX, opts.OffsetY, width, height)
@@ -1271,7 +1271,7 @@ func (f *File) addDrawingChart(sheet, drawingXML, cell string, width, height, rI
 	to.RowOff = y2 * EMU
 	twoCellAnchor.From = &from
 	twoCellAnchor.To = &to
-
+	
 	graphicFrame := xlsxGraphicFrame{
 		NvGraphicFramePr: xlsxNvGraphicFramePr{
 			CNvPr: &xlsxCNvPr{
@@ -1314,7 +1314,7 @@ func (f *File) addSheetDrawingChart(drawingXML string, rID int, opts *GraphicOpt
 		Pos:    &xlsxPoint2D{},
 		Ext:    &xlsxExt{},
 	}
-
+	
 	graphicFrame := xlsxGraphicFrame{
 		NvGraphicFramePr: xlsxNvGraphicFramePr{
 			CNvPr: &xlsxCNvPr{

@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"bytes"
@@ -183,7 +183,7 @@ func (f *File) SetDocProps(docProperties *DocProperties) error {
 		newProps           *xlsxCoreProperties
 		output             []byte
 	)
-
+	
 	core = new(decodeCoreProperties)
 	if err = f.xmlNewDecoder(bytes.NewReader(namespaceStrictToTransitional(f.readXML(defaultXMLPathDocPropsCore)))).
 		Decode(core); err != nil && err != io.EOF {
@@ -231,14 +231,14 @@ func (f *File) SetDocProps(docProperties *DocProperties) error {
 	}
 	output, err = xml.Marshal(newProps)
 	f.saveFileList(defaultXMLPathDocPropsCore, output)
-
+	
 	return err
 }
 
 // GetDocProps provides a function to get document core properties.
 func (f *File) GetDocProps() (ret *DocProperties, err error) {
 	core := new(decodeCoreProperties)
-
+	
 	if err = f.xmlNewDecoder(bytes.NewReader(namespaceStrictToTransitional(f.readXML(defaultXMLPathDocPropsCore)))).
 		Decode(core); err != nil && err != io.EOF {
 		return

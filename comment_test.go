@@ -9,14 +9,14 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"encoding/xml"
 	"path/filepath"
 	"strings"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,11 +25,11 @@ func TestAddComment(t *testing.T) {
 	if !assert.NoError(t, err) {
 		t.FailNow()
 	}
-
+	
 	s := strings.Repeat("c", TotalCellChars+1)
 	assert.NoError(t, f.AddComment("Sheet1", Comment{Cell: "A30", Author: s, Text: s, Runs: []RichTextRun{{Text: s}, {Text: s}}}))
 	assert.NoError(t, f.AddComment("Sheet2", Comment{Cell: "B7", Author: "Excelize", Text: s[:TotalCellChars-1], Runs: []RichTextRun{{Text: "Excelize: ", Font: &Font{Bold: true}}, {Text: "This is a comment."}}}))
-
+	
 	// Test add comment on not exists worksheet
 	assert.EqualError(t, f.AddComment("SheetN", Comment{Cell: "B7", Author: "Excelize", Runs: []RichTextRun{{Text: "Excelize: ", Font: &Font{Bold: true}}, {Text: "This is a comment."}}}), "sheet SheetN does not exist")
 	// Test add comment on with illegal cell reference
@@ -39,7 +39,7 @@ func TestAddComment(t *testing.T) {
 	if assert.NoError(t, f.SaveAs(filepath.Join("test", "TestAddComments.xlsx"))) {
 		assert.Len(t, comments, 2)
 	}
-
+	
 	f.Comments["xl/comments2.xml"] = nil
 	f.Pkg.Store("xl/comments2.xml", []byte(xml.Header+`<comments xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><authors><author>Excelize: </author></authors><commentList><comment ref="B7" authorId="0"><text><t>Excelize: </t></text></comment></commentList></comments>`))
 	comments, err = f.GetComments()
@@ -49,21 +49,21 @@ func TestAddComment(t *testing.T) {
 	comments, err = NewFile().GetComments()
 	assert.NoError(t, err)
 	assert.EqualValues(t, len(comments), 0)
-
+	
 	// Test add comments with invalid sheet name
 	assert.EqualError(t, f.AddComment("Sheet:1", Comment{Cell: "A1", Author: "Excelize", Text: "This is a comment."}), ErrSheetNameInvalid.Error())
-
+	
 	// Test add comments with unsupported charset
 	f.Comments["xl/comments2.xml"] = nil
 	f.Pkg.Store("xl/comments2.xml", MacintoshCyrillicCharset)
 	_, err = f.GetComments()
 	assert.EqualError(t, err, "XML syntax error on line 1: invalid UTF-8")
-
+	
 	// Test add comments with unsupported charset
 	f.Comments["xl/comments2.xml"] = nil
 	f.Pkg.Store("xl/comments2.xml", MacintoshCyrillicCharset)
 	assert.EqualError(t, f.AddComment("Sheet2", Comment{Cell: "A30", Text: "Comment"}), "XML syntax error on line 1: invalid UTF-8")
-
+	
 	// Test add comments with unsupported charset style sheet
 	f.Styles = nil
 	f.Pkg.Store(defaultXMLPathStyles, MacintoshCyrillicCharset)
@@ -75,24 +75,24 @@ func TestDeleteComment(t *testing.T) {
 	if !assert.NoError(t, err) {
 		t.FailNow()
 	}
-
+	
 	assert.NoError(t, f.AddComment("Sheet2", Comment{Cell: "A40", Text: "Excelize: This is a comment1."}))
 	assert.NoError(t, f.AddComment("Sheet2", Comment{Cell: "A41", Runs: []RichTextRun{{Text: "Excelize: ", Font: &Font{Bold: true}}, {Text: "This is a comment2."}}}))
 	assert.NoError(t, f.AddComment("Sheet2", Comment{Cell: "C41", Runs: []RichTextRun{{Text: "Excelize: ", Font: &Font{Bold: true}}, {Text: "This is a comment3."}}}))
 	assert.NoError(t, f.AddComment("Sheet2", Comment{Cell: "C41", Runs: []RichTextRun{{Text: "Excelize: ", Font: &Font{Bold: true}}, {Text: "This is a comment3-1."}}}))
 	assert.NoError(t, f.AddComment("Sheet2", Comment{Cell: "C42", Runs: []RichTextRun{{Text: "Excelize: ", Font: &Font{Bold: true}}, {Text: "This is a comment4."}}}))
 	assert.NoError(t, f.AddComment("Sheet2", Comment{Cell: "C41", Runs: []RichTextRun{{Text: "Excelize: ", Font: &Font{Bold: true}}, {Text: "This is a comment2."}}}))
-
+	
 	assert.NoError(t, f.DeleteComment("Sheet2", "A40"))
-
+	
 	comments, err := f.GetComments()
 	assert.NoError(t, err)
 	assert.EqualValues(t, 5, len(comments["Sheet2"]))
-
+	
 	comments, err = NewFile().GetComments()
 	assert.NoError(t, err)
 	assert.EqualValues(t, len(comments), 0)
-
+	
 	// Test delete comment with invalid sheet name
 	assert.EqualError(t, f.DeleteComment("Sheet:1", "A1"), ErrSheetNameInvalid.Error())
 	// Test delete all comments in a worksheet
@@ -107,7 +107,7 @@ func TestDeleteComment(t *testing.T) {
 	// Test delete comment with worksheet part
 	f.Pkg.Delete("xl/worksheets/sheet1.xml")
 	assert.NoError(t, f.DeleteComment("Sheet1", "A22"))
-
+	
 	f.Comments["xl/comments2.xml"] = nil
 	f.Pkg.Store("xl/comments2.xml", MacintoshCyrillicCharset)
 	assert.EqualError(t, f.DeleteComment("Sheet2", "A41"), "XML syntax error on line 1: invalid UTF-8")

@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"fmt"
@@ -99,7 +99,7 @@ func (dd *DataValidation) SetError(style DataValidationErrorStyle, title, msg st
 		strStyle = styleWarning
 	case DataValidationErrorStyleInformation:
 		strStyle = styleInformation
-
+		
 	}
 	dd.ShowErrorMessage = true
 	dd.ErrorStyle = &strStyle
@@ -196,7 +196,7 @@ func convDataValidationType(t DataValidationType) string {
 		DataValidationTypeTime:       "time",
 		DataValidationTypeWhole:      "whole",
 	}
-
+	
 	return typeMap[t]
 }
 
@@ -212,7 +212,7 @@ func convDataValidationOperator(o DataValidationOperator) string {
 		DataValidationOperatorNotBetween:         "notBetween",
 		DataValidationOperatorNotEqual:           "notEqual",
 	}
-
+	
 	return typeMap[o]
 }
 

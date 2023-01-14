@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"bytes"
@@ -29,7 +29,7 @@ import (
 	"reflect"
 	"sort"
 	"strings"
-
+	
 	"github.com/richardlehane/mscfb"
 	"golang.org/x/crypto/md4"
 	"golang.org/x/crypto/ripemd160"
@@ -511,7 +511,7 @@ func decryptPackage(packageKey, input []byte, encryption Encryption) (outputChun
 	for end < len(input) {
 		start = end
 		end = start + packageEncryptionChunkSize
-
+		
 		if end > len(input) {
 			end = len(input)
 		}
@@ -522,7 +522,7 @@ func decryptPackage(packageKey, input []byte, encryption Encryption) (outputChun
 		} else {
 			inputChunk = input[start+offset : end]
 		}
-
+		
 		// Pad the chunk if it is not an integer multiple of the block size
 		remainder := len(inputChunk) % encryptedKey.BlockSize
 		if remainder != 0 {

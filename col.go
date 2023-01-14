@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"bytes"
@@ -17,7 +17,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
-
+	
 	"github.com/mohae/deepcopy"
 )
 
@@ -599,31 +599,31 @@ func (f *File) positionObjectPixels(sheet string, col, row, x1, y1, width, heigh
 		x1 -= f.getColWidth(sheet, col)
 		col++
 	}
-
+	
 	// Adjust start row for offsets that are greater than the row height.
 	for y1 >= f.getRowHeight(sheet, row) {
 		y1 -= f.getRowHeight(sheet, row)
 		row++
 	}
-
+	
 	// Initialized end cell to the same as the start cell.
 	colEnd, rowEnd := col, row
-
+	
 	width += x1
 	height += y1
-
+	
 	// Subtract the underlying cell widths to find end cell of the object.
 	for width >= f.getColWidth(sheet, colEnd+1) {
 		colEnd++
 		width -= f.getColWidth(sheet, colEnd)
 	}
-
+	
 	// Subtract the underlying cell heights to find end cell of the object.
 	for height >= f.getRowHeight(sheet, rowEnd+1) {
 		rowEnd++
 		height -= f.getRowHeight(sheet, rowEnd)
 	}
-
+	
 	// The end vertices are whatever is left from the width and height.
 	x2 := width
 	y2 := height
@@ -738,7 +738,7 @@ func (f *File) RemoveCol(sheet, col string) error {
 	if err != nil {
 		return err
 	}
-
+	
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
 		return err

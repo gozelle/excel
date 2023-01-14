@@ -1,8 +1,8 @@
-package excelize
+package excel
 
 import (
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
@@ -75,7 +75,7 @@ func TestSetSheetProps(t *testing.T) {
 	opts, err := f.GetSheetProps("Sheet1")
 	assert.NoError(t, err)
 	assert.Equal(t, expected, opts)
-
+	
 	ws.(*xlsxWorksheet).SheetPr = nil
 	assert.NoError(t, f.SetSheetProps("Sheet1", &SheetPropsOptions{FitToPage: enable}))
 	ws.(*xlsxWorksheet).SheetPr = nil
@@ -84,7 +84,7 @@ func TestSetSheetProps(t *testing.T) {
 	assert.NoError(t, f.SetSheetProps("Sheet1", &SheetPropsOptions{TabColorTheme: intPtr(1)}))
 	ws.(*xlsxWorksheet).SheetPr = nil
 	assert.NoError(t, f.SetSheetProps("Sheet1", &SheetPropsOptions{TabColorTint: float64Ptr(1)}))
-
+	
 	// Test set worksheet properties on not exists worksheet
 	assert.EqualError(t, f.SetSheetProps("SheetN", nil), "sheet SheetN does not exist")
 	// Test set worksheet properties with invalid sheet name

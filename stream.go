@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"bytes"
@@ -124,13 +124,13 @@ func (f *File) NewStreamWriter(sheet string) (*StreamWriter, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	
 	sheetXMLPath, _ := f.getSheetXMLPath(sheet)
 	if f.streams == nil {
 		f.streams = make(map[string]*StreamWriter)
 	}
 	f.streams[sheetXMLPath] = sw
-
+	
 	_, _ = sw.rawData.WriteString(xml.Header + `<worksheet` + templateNamespaceIDMap)
 	bulkAppendFields(&sw.rawData, sw.worksheet, 2, 3)
 	return sw, err
@@ -167,18 +167,18 @@ func (sw *StreamWriter) AddTable(rangeRef string, opts *TableOptions) error {
 		return err
 	}
 	_ = sortCoordinates(coordinates)
-
+	
 	// Correct the minimum number of rows, the table at least two lines.
 	if coordinates[1] == coordinates[3] {
 		coordinates[3]++
 	}
-
+	
 	// Correct table reference range, such correct C1:B3 to B1:C3.
 	ref, err := sw.file.coordinatesToRangeRef(coordinates)
 	if err != nil {
 		return err
 	}
-
+	
 	// create table columns using the first row
 	tableHeaders, err := sw.getRowValues(coordinates[1], coordinates[0], coordinates[2])
 	if err != nil {
@@ -191,14 +191,14 @@ func (sw *StreamWriter) AddTable(rangeRef string, opts *TableOptions) error {
 			Name: name,
 		}
 	}
-
+	
 	tableID := sw.file.countTables() + 1
-
+	
 	name := options.Name
 	if name == "" {
 		name = "Table" + strconv.Itoa(tableID)
 	}
-
+	
 	table := xlsxTable{
 		XMLNS:       NameSpaceSpreadSheet.Value,
 		ID:          tableID,
@@ -220,17 +220,17 @@ func (sw *StreamWriter) AddTable(rangeRef string, opts *TableOptions) error {
 			ShowColumnStripes: options.ShowColumnStripes,
 		},
 	}
-
+	
 	sheetRelationshipsTableXML := "../tables/table" + strconv.Itoa(tableID) + ".xml"
 	tableXML := strings.ReplaceAll(sheetRelationshipsTableXML, "..", "xl")
-
+	
 	// Add first table for given sheet
 	sheetPath := sw.file.sheetMap[sw.Sheet]
 	sheetRels := "xl/worksheets/_rels/" + strings.TrimPrefix(sheetPath, "xl/worksheets/") + ".rels"
 	rID := sw.file.addRels(sheetRels, SourceRelationshipTable, sheetRelationshipsTableXML, "")
-
+	
 	sw.tableParts = fmt.Sprintf(`<tableParts count="1"><tablePart r:id="rId%d"></tablePart></tableParts>`, rID)
-
+	
 	if err = sw.file.addContentTypePart(tableID, "table"); err != nil {
 		return err
 	}
@@ -242,12 +242,12 @@ func (sw *StreamWriter) AddTable(rangeRef string, opts *TableOptions) error {
 // Extract values from a row in the StreamWriter.
 func (sw *StreamWriter) getRowValues(hRow, hCol, vCol int) (res []string, err error) {
 	res = make([]string, vCol-hCol+1)
-
+	
 	r, err := sw.rawData.Reader()
 	if err != nil {
 		return nil, err
 	}
-
+	
 	dec := sw.file.xmlNewDecoder(r)
 	for {
 		token, err := dec.Token()
@@ -442,7 +442,7 @@ func (sw *StreamWriter) SetColWidth(min, max int, width float64) error {
 	if min > max {
 		min, max = max, min
 	}
-
+	
 	sw.cols.WriteString(`<col min="`)
 	sw.cols.WriteString(strconv.Itoa(min))
 	sw.cols.WriteString(`" max="`)
@@ -665,12 +665,12 @@ func (sw *StreamWriter) Flush() error {
 	if err := sw.rawData.Flush(); err != nil {
 		return err
 	}
-
+	
 	sheetPath := sw.file.sheetMap[sw.Sheet]
 	sw.file.Sheet.Delete(sheetPath)
 	delete(sw.file.checked, sheetPath)
 	sw.file.Pkg.Delete(sheetPath)
-
+	
 	return nil
 }
 

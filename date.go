@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"math"
@@ -46,10 +46,10 @@ func timeToExcelTime(t time.Time, date1904 bool) (float64, error) {
 		tt = tt.Add(-maxDuration)
 		diff = tt.Sub(date)
 	}
-
+	
 	rem := diff % dayNanoseconds
 	result += float64(diff-rem)/float64(dayNanoseconds) + float64(rem)/float64(dayNanoseconds)
-
+	
 	// Excel dates after 28th February 1900 are actually one day out.
 	// Excel behaves as though the date 29th February 1900 existed, which it didn't.
 	// Microsoft intentionally included this bug in Excel so that it would remain compatible with the spreadsheet
@@ -85,7 +85,7 @@ func fractionOfADay(fraction float64) (hours, minutes, seconds, nanoseconds int)
 		c1s   = 1e9
 		c1day = 24 * 60 * 60 * c1s
 	)
-
+	
 	frac := int64(c1day*fraction + c1us/2)
 	nanoseconds = int((frac%c1s)/c1us) * c1us
 	frac /= c1s

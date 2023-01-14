@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"bytes"
@@ -26,7 +26,7 @@ import (
 	"strings"
 	"unicode/utf16"
 	"unicode/utf8"
-
+	
 	"github.com/mohae/deepcopy"
 )
 
@@ -552,18 +552,18 @@ func (f *File) DeleteSheet(sheet string) error {
 	if idx, _ := f.GetSheetIndex(sheet); f.SheetCount == 1 || idx == -1 {
 		return nil
 	}
-
+	
 	wb, _ := f.workbookReader()
 	wbRels, _ := f.relsReader(f.getWorkbookRelsPath())
 	activeSheetName := f.GetSheetName(f.GetActiveSheetIndex())
 	deleteLocalSheetID, _ := f.GetSheetIndex(sheet)
 	deleteAndAdjustDefinedNames(wb, deleteLocalSheetID)
-
+	
 	for idx, v := range wb.Sheets.Sheet {
 		if !strings.EqualFold(v.Name, sheet) {
 			continue
 		}
-
+		
 		wb.Sheets.Sheet = append(wb.Sheets.Sheet[:idx], wb.Sheets.Sheet[idx+1:]...)
 		var sheetXML, rels string
 		if wbRels != nil {
@@ -973,7 +973,7 @@ func (f *File) searchSheet(name, value string, regSearch bool) (result []string,
 		cellCol, row        int
 		sst                 *xlsxSST
 	)
-
+	
 	if sst, err = f.sharedStringsReader(); err != nil {
 		return
 	}
@@ -1192,7 +1192,7 @@ func (f *File) SetHeaderFooter(sheet string, settings *HeaderFooterOptions) erro
 		ws.HeaderFooter = nil
 		return err
 	}
-
+	
 	v := reflect.ValueOf(*settings)
 	// Check 6 string type fields: OddHeader, OddFooter, EvenHeader, EvenFooter,
 	// FirstFooter, FirstHeader
@@ -1728,7 +1728,7 @@ func (ws *xlsxWorksheet) insertPageBreak(cell string) error {
 	if ws.ColBreaks == nil {
 		ws.ColBreaks = &xlsxColBreaks{}
 	}
-
+	
 	for idx, brk := range ws.RowBreaks.Brk {
 		if brk.ID == row {
 			rowBrk = idx
@@ -1739,7 +1739,7 @@ func (ws *xlsxWorksheet) insertPageBreak(cell string) error {
 			colBrk = idx
 		}
 	}
-
+	
 	if row != 0 && rowBrk == -1 {
 		ws.RowBreaks.Brk = append(ws.RowBreaks.Brk, &xlsxBrk{
 			ID:  row,

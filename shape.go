@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"strconv"
@@ -299,7 +299,7 @@ func (f *File) AddShape(sheet, cell string, opts *Shape) error {
 	drawingID := f.countDrawings() + 1
 	drawingXML := "xl/drawings/drawing" + strconv.Itoa(drawingID) + ".xml"
 	sheetRelationshipsDrawingXML := "../drawings/drawing" + strconv.Itoa(drawingID) + ".xml"
-
+	
 	if ws.Drawing != nil {
 		// The worksheet already has a shape or chart relationships, use the relationships drawing ../drawings/drawing%d.xml.
 		sheetRelationshipsDrawingXML = f.getSheetRelationshipsTargetByID(sheet, ws.Drawing.RID)
@@ -328,10 +328,10 @@ func (f *File) addDrawingShape(sheet, drawingXML, cell string, opts *Shape) erro
 	}
 	colIdx := fromCol - 1
 	rowIdx := fromRow - 1
-
+	
 	width := int(float64(opts.Width) * opts.Format.ScaleX)
 	height := int(float64(opts.Height) * opts.Format.ScaleY)
-
+	
 	colStart, rowStart, colEnd, rowEnd, x2, y2 := f.positionObjectPixels(sheet, colIdx, rowIdx, opts.Format.OffsetX, opts.Format.OffsetY,
 		width, height)
 	content, cNvPrID, err := f.drawingParser(drawingXML)

@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"bytes"
@@ -62,11 +62,11 @@ func (f *File) adjustHelper(sheet string, dir adjustDirection, num, offset int) 
 	}
 	checkSheet(ws)
 	_ = checkRow(ws)
-
+	
 	if ws.MergeCells != nil && len(ws.MergeCells.Cells) == 0 {
 		ws.MergeCells = nil
 	}
-
+	
 	return nil
 }
 
@@ -174,13 +174,13 @@ func (f *File) adjustHyperlinks(ws *xlsxWorksheet, sheet string, dir adjustDirec
 	if ws.Hyperlinks == nil || len(ws.Hyperlinks.Hyperlink) == 0 {
 		return
 	}
-
+	
 	// order is important
 	if offset < 0 {
 		for i := len(ws.Hyperlinks.Hyperlink) - 1; i >= 0; i-- {
 			linkData := ws.Hyperlinks.Hyperlink[i]
 			colNum, rowNum, _ := CellNameToCoordinates(linkData.Ref)
-
+			
 			if (dir == rows && num == rowNum) || (dir == columns && num == colNum) {
 				f.deleteSheetRelationships(sheet, linkData.RID)
 				if len(ws.Hyperlinks.Hyperlink) > 1 {
@@ -264,13 +264,13 @@ func (f *File) adjustAutoFilter(ws *xlsxWorksheet, dir adjustDirection, num, off
 	if ws.AutoFilter == nil {
 		return nil
 	}
-
+	
 	coordinates, err := rangeRefToCoordinates(ws.AutoFilter.Ref)
 	if err != nil {
 		return err
 	}
 	x1, y1, x2, y2 := coordinates[0], coordinates[1], coordinates[2], coordinates[3]
-
+	
 	if (dir == rows && y1 == num && offset < 0) || (dir == columns && x1 == num && x2 == num) {
 		ws.AutoFilter = nil
 		for rowIdx := range ws.SheetData.Row {
@@ -281,10 +281,10 @@ func (f *File) adjustAutoFilter(ws *xlsxWorksheet, dir adjustDirection, num, off
 		}
 		return err
 	}
-
+	
 	coordinates = f.adjustAutoFilterHelper(dir, coordinates, num, offset)
 	x1, y1, x2, y2 = coordinates[0], coordinates[1], coordinates[2], coordinates[3]
-
+	
 	ws.AutoFilter.Ref, err = f.coordinatesToRangeRef([]int{x1, y1, x2, y2})
 	return err
 }
@@ -317,7 +317,7 @@ func (f *File) adjustMergeCells(ws *xlsxWorksheet, dir adjustDirection, num, off
 	if ws.MergeCells == nil {
 		return nil
 	}
-
+	
 	for i := 0; i < len(ws.MergeCells.Cells); i++ {
 		mergedCells := ws.MergeCells.Cells[i]
 		mergedCellsRef := mergedCells.Ref
@@ -335,7 +335,7 @@ func (f *File) adjustMergeCells(ws *xlsxWorksheet, dir adjustDirection, num, off
 				i--
 				continue
 			}
-
+			
 			y1, y2 = f.adjustMergeCellsHelper(y1, y2, num, offset)
 		} else {
 			if x1 == num && x2 == num && offset < 0 {
@@ -343,7 +343,7 @@ func (f *File) adjustMergeCells(ws *xlsxWorksheet, dir adjustDirection, num, off
 				i--
 				continue
 			}
-
+			
 			x1, x2 = f.adjustMergeCellsHelper(x1, x2, num, offset)
 		}
 		if x1 == x2 && y1 == y2 {
@@ -366,7 +366,7 @@ func (f *File) adjustMergeCellsHelper(p1, p2, num, offset int) (int, int) {
 	if p2 < p1 {
 		p1, p2 = p2, p1
 	}
-
+	
 	if offset >= 0 {
 		if num <= p1 {
 			p1 += offset

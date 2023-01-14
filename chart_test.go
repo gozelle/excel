@@ -1,4 +1,4 @@
-package excelize
+package excel
 
 import (
 	"bytes"
@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"path/filepath"
 	"testing"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
 func TestChartSize(t *testing.T) {
 	f := NewFile()
 	sheet1 := f.GetSheetName(0)
-
+	
 	categories := map[string]string{
 		"A2": "Small",
 		"A3": "Normal",
@@ -25,7 +25,7 @@ func TestChartSize(t *testing.T) {
 	for cell, v := range categories {
 		assert.NoError(t, f.SetCellValue(sheet1, cell, v))
 	}
-
+	
 	values := map[string]int{
 		"B2": 2,
 		"C2": 3,
@@ -40,7 +40,7 @@ func TestChartSize(t *testing.T) {
 	for cell, v := range values {
 		assert.NoError(t, f.SetCellValue(sheet1, cell, v))
 	}
-
+	
 	assert.NoError(t, f.AddChart("Sheet1", "E4", &Chart{
 		Type: "col3DClustered",
 		Dimension: ChartDimension{
@@ -54,48 +54,48 @@ func TestChartSize(t *testing.T) {
 		},
 		Title: ChartTitle{Name: "3D Clustered Column Chart"},
 	}))
-
+	
 	var buffer bytes.Buffer
-
+	
 	// Save spreadsheet by the given path.
 	assert.NoError(t, f.Write(&buffer))
-
+	
 	newFile, err := OpenReader(&buffer)
 	assert.NoError(t, err)
-
+	
 	chartsNum := newFile.countCharts()
 	if !assert.Equal(t, 1, chartsNum, "Expected 1 chart, actual %d", chartsNum) {
 		t.FailNow()
 	}
-
+	
 	var (
 		workdir decodeWsDr
 		anchor  decodeTwoCellAnchor
 	)
-
+	
 	content, ok := newFile.Pkg.Load("xl/drawings/drawing1.xml")
 	assert.True(t, ok, "Can't open the chart")
-
+	
 	err = xml.Unmarshal(content.([]byte), &workdir)
 	if !assert.NoError(t, err) {
 		t.FailNow()
 	}
-
+	
 	err = xml.Unmarshal([]byte("<decodeTwoCellAnchor>"+
 		workdir.TwoCellAnchor[0].Content+"</decodeTwoCellAnchor>"), &anchor)
 	if !assert.NoError(t, err) {
 		t.FailNow()
 	}
-
+	
 	if !assert.Equal(t, 4, anchor.From.Col, "Expected 'from' column 4") ||
 		!assert.Equal(t, 3, anchor.From.Row, "Expected 'from' row 3") {
-
+		
 		t.FailNow()
 	}
-
+	
 	if !assert.Equal(t, 14, anchor.To.Col, "Expected 'to' column 14") ||
 		!assert.Equal(t, 27, anchor.To.Row, "Expected 'to' row 27") {
-
+		
 		t.FailNow()
 	}
 }
@@ -103,7 +103,7 @@ func TestChartSize(t *testing.T) {
 func TestAddDrawingChart(t *testing.T) {
 	f := NewFile()
 	assert.EqualError(t, f.addDrawingChart("SheetN", "", "", 0, 0, 0, nil), newCellNameToCoordinatesError("", newInvalidCellNameError("")).Error())
-
+	
 	path := "xl/drawings/drawing1.xml"
 	f.Pkg.Store(path, MacintoshCyrillicCharset)
 	assert.EqualError(t, f.addDrawingChart("Sheet1", path, "A1", 0, 0, 0, &GraphicOptions{PrintObject: boolPtr(true), Locked: boolPtr(false)}), "XML syntax error on line 1: invalid UTF-8")
@@ -128,7 +128,7 @@ func TestAddChart(t *testing.T) {
 	if !assert.NoError(t, err) {
 		t.FailNow()
 	}
-
+	
 	categories := map[string]string{"A30": "SS", "A31": "S", "A32": "M", "A33": "L", "A34": "LL", "A35": "XL", "A36": "XXL", "A37": "XXXL", "B29": "Apple", "C29": "Orange", "D29": "Pear"}
 	values := map[string]int{"B30": 1, "C30": 1, "D30": 1, "B31": 2, "C31": 2, "D31": 2, "B32": 3, "C32": 3, "D32": 3, "B33": 4, "C33": 4, "D33": 4, "B34": 5, "C34": 5, "D34": 5, "B35": 6, "C35": 6, "D35": 6, "B36": 7, "C36": 7, "D36": 7, "B37": 8, "C37": 8, "D37": 8}
 	for k, v := range categories {
@@ -138,7 +138,7 @@ func TestAddChart(t *testing.T) {
 		assert.NoError(t, f.SetCellValue("Sheet1", k, v))
 	}
 	assert.EqualError(t, f.AddChart("Sheet1", "P1", nil), ErrParameterInvalid.Error())
-
+	
 	// Test add chart on not exists worksheet
 	assert.EqualError(t, f.AddChart("SheetN", "P1", nil), "sheet SheetN does not exist")
 	maximum, minimum, zero := 7.5, 0.5, .0
@@ -284,7 +284,7 @@ func TestAddChart(t *testing.T) {
 	// Test add combo chart with unsupported chart type
 	assert.EqualError(t, f.AddChart("Sheet2", "BD64", &Chart{Type: "barOfPie", Series: []ChartSeries{{Name: "Sheet1!$A$30", Categories: "Sheet1!$A$30:$D$37", Values: "Sheet1!$B$30:$B$37"}}, Format: format, Legend: legend, Title: ChartTitle{Name: "Bar of Pie Chart"}, PlotArea: plotArea, ShowBlanksAs: "zero", XAxis: ChartAxis{MajorGridLines: true}, YAxis: ChartAxis{MajorGridLines: true}}, &Chart{Type: "unknown", Series: []ChartSeries{{Name: "Sheet1!$A$30", Categories: "Sheet1!$A$30:$D$37", Values: "Sheet1!$B$30:$B$37"}}, Format: format, Legend: legend, Title: ChartTitle{Name: "Bar of Pie Chart"}, PlotArea: plotArea, ShowBlanksAs: "zero", XAxis: ChartAxis{MajorGridLines: true}, YAxis: ChartAxis{MajorGridLines: true}}), "unsupported chart type unknown")
 	assert.NoError(t, f.Close())
-
+	
 	// Test add chart with unsupported charset content types.
 	f.ContentTypes = nil
 	f.Pkg.Store(defaultXMLPathContentTypes, MacintoshCyrillicCharset)
@@ -316,19 +316,19 @@ func TestAddChartSheet(t *testing.T) {
 		sheetIdx = idx
 	}
 	f.SetActiveSheet(sheetIdx)
-
+	
 	// Test cell value on chartsheet
 	assert.EqualError(t, f.SetCellValue("Chart1", "A1", true), "sheet Chart1 is not a worksheet")
 	// Test add chartsheet on already existing name sheet
-
+	
 	assert.EqualError(t, f.AddChartSheet("Sheet1", &Chart{Type: "col3DClustered", Series: series, Title: ChartTitle{Name: "Fruit 3D Clustered Column Chart"}}), ErrExistsSheet.Error())
 	// Test add chartsheet with invalid sheet name
 	assert.EqualError(t, f.AddChartSheet("Sheet:1", nil, &Chart{Type: "col3DClustered", Series: series, Title: ChartTitle{Name: "Fruit 3D Clustered Column Chart"}}), ErrSheetNameInvalid.Error())
 	// Test with unsupported chart type
 	assert.EqualError(t, f.AddChartSheet("Chart2", &Chart{Type: "unknown", Series: series, Title: ChartTitle{Name: "Fruit 3D Clustered Column Chart"}}), "unsupported chart type unknown")
-
+	
 	assert.NoError(t, f.UpdateLinkedValue())
-
+	
 	assert.NoError(t, f.SaveAs(filepath.Join("test", "TestAddChartSheet.xlsx")))
 	// Test add chart sheet with unsupported charset content types
 	f = NewFile()
@@ -428,18 +428,18 @@ func TestChartWithLogarithmicBase(t *testing.T) {
 		// Add two chart, one without and one with log scaling
 		assert.NoError(t, f.AddChart(sheet1, c.cell, c.opts))
 	}
-
+	
 	// Export XLSX file for human confirmation
 	assert.NoError(t, f.SaveAs(filepath.Join("test", "TestChartWithLogarithmicBase10.xlsx")))
-
+	
 	// Write the XLSX file to a buffer
 	var buffer bytes.Buffer
 	assert.NoError(t, f.Write(&buffer))
-
+	
 	// Read back the XLSX file from the buffer
 	newFile, err := OpenReader(&buffer)
 	assert.NoError(t, err)
-
+	
 	// Check the number of charts
 	expectedChartsCount := 6
 	chartsNum := newFile.countCharts()
@@ -447,7 +447,7 @@ func TestChartWithLogarithmicBase(t *testing.T) {
 		"Expected %d charts, actual %d", expectedChartsCount, chartsNum) {
 		t.FailNow()
 	}
-
+	
 	chartSpaces := make([]xlsxChartSpace, expectedChartsCount)
 	type xmlChartContent []byte
 	xmlCharts := make([]xmlChartContent, expectedChartsCount)
@@ -462,12 +462,12 @@ func TestChartWithLogarithmicBase(t *testing.T) {
 			xmlCharts[i] = drawingML.([]byte)
 		}
 		assert.True(t, ok, "Can't open the %s", chartPath)
-
+		
 		err = xml.Unmarshal(xmlCharts[i], &chartSpaces[i])
 		if !assert.NoError(t, err) {
 			t.FailNow()
 		}
-
+		
 		chartLogBasePtr := chartSpaces[i].Chart.PlotArea.ValAx[0].Scaling.LogBase
 		if expectedChartsLogBase[i] == 0 {
 			if !assert.Nil(t, chartLogBasePtr, "LogBase is not nil") {

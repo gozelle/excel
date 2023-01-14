@@ -9,7 +9,7 @@
 // API for generating or reading data from a worksheet with huge amounts of
 // data. This library needs Go version 1.16 or later.
 
-package excelize
+package excel
 
 import (
 	"bytes"
@@ -2011,9 +2011,9 @@ func (f *File) NewStyle(style *Style) (int, error) {
 	if cellXfsID, err = f.getStyleID(s, fs); err != nil || cellXfsID != -1 {
 		return cellXfsID, err
 	}
-
+	
 	numFmtID := newNumFmt(s, fs)
-
+	
 	if fs.Font != nil {
 		fontID, _ = f.getFontID(s, fs)
 		if fontID == -1 {
@@ -2023,7 +2023,7 @@ func (f *File) NewStyle(style *Style) (int, error) {
 			fontID = s.Fonts.Count - 1
 		}
 	}
-
+	
 	borderID = getBorderID(s, fs)
 	if borderID == -1 {
 		if len(fs.Border) == 0 {
@@ -2034,7 +2034,7 @@ func (f *File) NewStyle(style *Style) (int, error) {
 			borderID = s.Borders.Count - 1
 		}
 	}
-
+	
 	if fillID = getFillID(s, fs); fillID == -1 {
 		if fill := newFills(fs, true); fill != nil {
 			s.Fills.Count++
@@ -2044,7 +2044,7 @@ func (f *File) NewStyle(style *Style) (int, error) {
 			fillID = 0
 		}
 	}
-
+	
 	applyAlignment, alignment := fs.Alignment != nil, newAlignment(fs)
 	applyProtection, protection := fs.Protection != nil, newProtection(fs)
 	cellXfsID = setCellXfs(s, fontID, numFmtID, fillID, borderID, applyAlignment, applyProtection, alignment, protection)
@@ -2356,7 +2356,7 @@ func newNumFmt(styleSheet *xlsxStyleSheet, style *Style) int {
 // setCustomNumFmt provides a function to set custom number format code.
 func setCustomNumFmt(styleSheet *xlsxStyleSheet, style *Style) int {
 	nf := xlsxNumFmt{FormatCode: *style.CustomNumFmt}
-
+	
 	if styleSheet.NumFmts != nil {
 		nf.NumFmtID = styleSheet.NumFmts.NumFmt[len(styleSheet.NumFmts.NumFmt)-1].NumFmtID + 1
 		styleSheet.NumFmts.NumFmt = append(styleSheet.NumFmts.NumFmt, &nf)
@@ -2459,14 +2459,14 @@ func newFills(style *Style, fg bool) *xlsxFill {
 		"gray125",
 		"gray0625",
 	}
-
+	
 	variants := []float64{
 		90,
 		0,
 		45,
 		135,
 	}
-
+	
 	var fill xlsxFill
 	switch style.Fill.Type {
 	case "gradient":
@@ -2588,7 +2588,7 @@ func newBorders(style *Style) *xlsxBorder {
 		"mediumDashDotDot",
 		"slantDashDot",
 	}
-
+	
 	var border xlsxBorder
 	for _, v := range style.Border {
 		if 0 <= v.Style && v.Style < 14 {
@@ -2781,27 +2781,27 @@ func (f *File) SetCellStyle(sheet, hCell, vCell string, styleID int) error {
 	if err != nil {
 		return err
 	}
-
+	
 	vCol, vRow, err := CellNameToCoordinates(vCell)
 	if err != nil {
 		return err
 	}
-
+	
 	// Normalize the range, such correct C1:B3 to B1:C3.
 	if vCol < hCol {
 		vCol, hCol = hCol, vCol
 	}
-
+	
 	if vRow < hRow {
 		vRow, hRow = hRow, vRow
 	}
-
+	
 	hColIdx := hCol - 1
 	hRowIdx := hRow - 1
-
+	
 	vColIdx := vCol - 1
 	vRowIdx := vRow - 1
-
+	
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
 		return err
@@ -2810,7 +2810,7 @@ func (f *File) SetCellStyle(sheet, hCell, vCell string, styleID int) error {
 	makeContiguousColumns(ws, hRow, vRow, vCol)
 	ws.Lock()
 	defer ws.Unlock()
-
+	
 	s, err := f.stylesReader()
 	if err != nil {
 		return err
@@ -2820,7 +2820,7 @@ func (f *File) SetCellStyle(sheet, hCell, vCell string, styleID int) error {
 	if styleID < 0 || s.CellXfs == nil || len(s.CellXfs.Xf) <= styleID {
 		return newInvalidStyleID(styleID)
 	}
-
+	
 	for r := hRowIdx; r <= vRowIdx; r++ {
 		for k := hColIdx; k <= vColIdx; k++ {
 			ws.SheetData.Row[r].C[k].S = styleID
@@ -3202,7 +3202,7 @@ func (f *File) SetConditionalFormat(sheet, rangeRef string, opts []ConditionalFo
 		"dataBar":         drawCondFmtDataBar,
 		"expression":      drawCondFmtExp,
 	}
-
+	
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
 		return err
@@ -3224,7 +3224,7 @@ func (f *File) SetConditionalFormat(sheet, rangeRef string, opts []ConditionalFo
 			}
 		}
 	}
-
+	
 	ws.ConditionalFormatting = append(ws.ConditionalFormatting, &xlsxConditionalFormatting{
 		SQRef:  rangeRef,
 		CfRule: cfRule,
@@ -3359,7 +3359,7 @@ func (f *File) GetConditionalFormats(sheet string) (map[string][]ConditionalForm
 		"dataBar":         extractCondFmtDataBar,
 		"expression":      extractCondFmtExp,
 	}
-
+	
 	conditionalFormats := make(map[string][]ConditionalFormatOptions)
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
@@ -3470,7 +3470,7 @@ func drawCondFmtColorScale(p int, ct string, format *ConditionalFormatOptions) *
 	if midValue == "" {
 		midValue = "50"
 	}
-
+	
 	c := &xlsxCfRule{
 		Priority: p + 1,
 		Type:     "colorScale",

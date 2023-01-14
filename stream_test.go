@@ -1,4 +1,4 @@
-package excelize
+package excel
 
 import (
 	"encoding/xml"
@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 	"time"
-
+	
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,7 +24,7 @@ func BenchmarkStreamWriter(b *testing.B) {
 	for colID := 0; colID < 10; colID++ {
 		row[colID] = colID
 	}
-
+	
 	for n := 0; n < b.N; n++ {
 		streamWriter, _ := file.NewStreamWriter("Sheet1")
 		for rowID := 10; rowID <= 110; rowID++ {
@@ -32,7 +32,7 @@ func BenchmarkStreamWriter(b *testing.B) {
 			_ = streamWriter.SetRow(cell, row)
 		}
 	}
-
+	
 	b.ReportAllocs()
 }
 
@@ -40,21 +40,21 @@ func TestStreamWriter(t *testing.T) {
 	file := NewFile()
 	streamWriter, err := file.NewStreamWriter("Sheet1")
 	assert.NoError(t, err)
-
+	
 	// Test max characters in a cell
 	row := make([]interface{}, 1)
 	row[0] = strings.Repeat("c", TotalCellChars+2)
 	assert.NoError(t, streamWriter.SetRow("A1", row))
-
+	
 	// Test leading and ending space(s) character characters in a cell
 	row = make([]interface{}, 1)
 	row[0] = " characters"
 	assert.NoError(t, streamWriter.SetRow("A2", row))
-
+	
 	row = make([]interface{}, 1)
 	row[0] = []byte("Word")
 	assert.NoError(t, streamWriter.SetRow("A3", row))
-
+	
 	// Test set cell with style and rich text
 	styleID, err := file.NewStyle(&Style{Font: &Font{Color: "#777777"}})
 	assert.NoError(t, err)
@@ -74,7 +74,7 @@ func TestStreamWriter(t *testing.T) {
 	assert.NoError(t, streamWriter.SetRow("A6", []interface{}{time.Now()}))
 	assert.NoError(t, streamWriter.SetRow("A7", nil, RowOpts{Height: 20, Hidden: true, StyleID: styleID}))
 	assert.EqualError(t, streamWriter.SetRow("A8", nil, RowOpts{Height: MaxRowHeight + 1}), ErrMaxRowHeight.Error())
-
+	
 	for rowID := 10; rowID <= 51200; rowID++ {
 		row := make([]interface{}, 50)
 		for colID := 0; colID < 50; colID++ {
@@ -83,15 +83,15 @@ func TestStreamWriter(t *testing.T) {
 		cell, _ := CoordinatesToCellName(1, rowID)
 		assert.NoError(t, streamWriter.SetRow(cell, row))
 	}
-
+	
 	assert.NoError(t, streamWriter.Flush())
 	// Save spreadsheet by the given path
 	assert.NoError(t, file.SaveAs(filepath.Join("test", "TestStreamWriter.xlsx")))
-
+	
 	// Test set cell column overflow
 	assert.ErrorIs(t, streamWriter.SetRow("XFD51201", []interface{}{"A", "B", "C"}), ErrColumnNumber)
 	assert.NoError(t, file.Close())
-
+	
 	// Test close temporary file error
 	file = NewFile()
 	streamWriter, err = file.NewStreamWriter("Sheet1")
@@ -106,14 +106,14 @@ func TestStreamWriter(t *testing.T) {
 	}
 	assert.NoError(t, streamWriter.rawData.Close())
 	assert.Error(t, streamWriter.Flush())
-
+	
 	streamWriter.rawData.tmp, err = os.CreateTemp(os.TempDir(), "excelize-")
 	assert.NoError(t, err)
 	_, err = streamWriter.rawData.Reader()
 	assert.NoError(t, err)
 	assert.NoError(t, streamWriter.rawData.tmp.Close())
 	assert.NoError(t, os.Remove(streamWriter.rawData.tmp.Name()))
-
+	
 	// Test create stream writer with unsupported charset
 	file = NewFile()
 	file.Sheet.Delete("xl/worksheets/sheet1.xml")
@@ -121,7 +121,7 @@ func TestStreamWriter(t *testing.T) {
 	_, err = file.NewStreamWriter("Sheet1")
 	assert.EqualError(t, err, "XML syntax error on line 1: invalid UTF-8")
 	assert.NoError(t, file.Close())
-
+	
 	// Test read cell
 	file = NewFile()
 	streamWriter, err = file.NewStreamWriter("Sheet1")
@@ -131,7 +131,7 @@ func TestStreamWriter(t *testing.T) {
 	cellValue, err := file.GetCellValue("Sheet1", "A1")
 	assert.NoError(t, err)
 	assert.Equal(t, "Data", cellValue)
-
+	
 	// Test stream reader for a worksheet with huge amounts of data
 	file, err = OpenFile(filepath.Join("test", "TestStreamWriter.xlsx"))
 	assert.NoError(t, err)
@@ -203,11 +203,11 @@ func TestStreamTable(t *testing.T) {
 	for r := 2; r < 10000; r++ {
 		assert.NoError(t, streamWriter.SetRow(fmt.Sprintf("A%d", r), row))
 	}
-
+	
 	// Write a table
 	assert.NoError(t, streamWriter.AddTable("A1:C2", nil))
 	assert.NoError(t, streamWriter.Flush())
-
+	
 	// Verify the table has names
 	var table xlsxTable
 	val, ok := file.Pkg.Load("xl/tables/table1.xml")
@@ -216,9 +216,9 @@ func TestStreamTable(t *testing.T) {
 	assert.Equal(t, "A", table.TableColumns.TableColumn[0].Name)
 	assert.Equal(t, "B", table.TableColumns.TableColumn[1].Name)
 	assert.Equal(t, "C", table.TableColumns.TableColumn[2].Name)
-
+	
 	assert.NoError(t, streamWriter.AddTable("A1:C1", nil))
-
+	
 	// Test add table with illegal cell reference
 	assert.EqualError(t, streamWriter.AddTable("A:B1", nil), newCellNameToCoordinatesError("A", newInvalidCellNameError("A")).Error())
 	assert.EqualError(t, streamWriter.AddTable("A1:B", nil), newCellNameToCoordinatesError("B", newInvalidCellNameError("B")).Error())
@@ -320,7 +320,7 @@ func TestStreamSetRowWithStyle(t *testing.T) {
 	assert.NoError(t, err)
 	blueStyleID, err := file.NewStyle(&Style{Font: &Font{Color: "#0000FF"}})
 	assert.NoError(t, err)
-
+	
 	streamWriter, err := file.NewStreamWriter("Sheet1")
 	assert.NoError(t, err)
 	assert.NoError(t, streamWriter.SetRow("A1", []interface{}{
@@ -332,7 +332,7 @@ func TestStreamSetRowWithStyle(t *testing.T) {
 	}, RowOpts{StyleID: grayStyleID}))
 	err = streamWriter.Flush()
 	assert.NoError(t, err)
-
+	
 	ws, err := file.workSheetReader("Sheet1")
 	assert.NoError(t, err)
 	assert.Equal(t, grayStyleID, ws.SheetData.Row[0].C[0].S)
@@ -375,16 +375,16 @@ func TestStreamWriterOutlineLevel(t *testing.T) {
 	file := NewFile()
 	streamWriter, err := file.NewStreamWriter("Sheet1")
 	assert.NoError(t, err)
-
+	
 	// Test set outlineLevel in row
 	assert.NoError(t, streamWriter.SetRow("A1", nil, RowOpts{OutlineLevel: 1}))
 	assert.NoError(t, streamWriter.SetRow("A2", nil, RowOpts{OutlineLevel: 7}))
 	assert.ErrorIs(t, ErrOutlineLevel, streamWriter.SetRow("A3", nil, RowOpts{OutlineLevel: 8}))
-
+	
 	assert.NoError(t, streamWriter.Flush())
 	// Save spreadsheet by the given path
 	assert.NoError(t, file.SaveAs(filepath.Join("test", "TestStreamWriterSetRowOutlineLevel.xlsx")))
-
+	
 	file, err = OpenFile(filepath.Join("test", "TestStreamWriterSetRowOutlineLevel.xlsx"))
 	assert.NoError(t, err)
 	level, err := file.GetRowOutlineLevel("Sheet1", 1)
