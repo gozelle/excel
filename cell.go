@@ -678,7 +678,7 @@ type FormulaOpts struct {
 //	import (
 //	    "fmt"
 //
-//	    "github.com/xuri/excelize/v2"
+//	    "github.com/gozelle/excelize"
 //	)
 //
 //	func main() {
@@ -723,13 +723,13 @@ func (f *File) SetCellFormula(sheet, cell, formula string, opts ...FormulaOpts) 
 		c.F = nil
 		return f.deleteCalcChain(f.getSheetID(sheet), cell)
 	}
-
+	
 	if c.F != nil {
 		c.F.Content = formula
 	} else {
 		c.F = &xlsxF{Content: formula}
 	}
-
+	
 	for _, opt := range opts {
 		if opt.Type != nil {
 			if *opt.Type == STCellFormulaTypeDataTable {
@@ -858,7 +858,7 @@ func (f *File) SetCellHyperLink(sheet, cell, link, linkType string, opts ...Hype
 	if _, _, err := SplitCellName(cell); err != nil {
 		return err
 	}
-
+	
 	ws, err := f.workSheetReader(sheet)
 	if err != nil {
 		return err
@@ -866,7 +866,7 @@ func (f *File) SetCellHyperLink(sheet, cell, link, linkType string, opts ...Hype
 	if cell, err = f.mergeCellsParser(ws, cell); err != nil {
 		return err
 	}
-
+	
 	var linkData xlsxHyperlink
 	idx := -1
 	if ws.Hyperlinks == nil {
@@ -879,11 +879,11 @@ func (f *File) SetCellHyperLink(sheet, cell, link, linkType string, opts ...Hype
 			break
 		}
 	}
-
+	
 	if len(ws.Hyperlinks.Hyperlink) > TotalSheetHyperlinks {
 		return ErrTotalSheetHyperlinks
 	}
-
+	
 	switch linkType {
 	case "External":
 		sheetPath, _ := f.getSheetXMLPath(sheet)
@@ -902,7 +902,7 @@ func (f *File) SetCellHyperLink(sheet, cell, link, linkType string, opts ...Hype
 	default:
 		return fmt.Errorf("invalid link type %q", linkType)
 	}
-
+	
 	for _, o := range opts {
 		if o.Display != nil {
 			linkData.Display = *o.Display
@@ -1048,7 +1048,7 @@ func setRichText(runs []RichTextRun) ([]xlsxR, error) {
 //	import (
 //	    "fmt"
 //
-//	    "github.com/xuri/excelize/v2"
+//	    "github.com/gozelle/excelize"
 //	)
 //
 //	func main() {
@@ -1258,7 +1258,7 @@ func (f *File) prepareCell(ws *xlsxWorksheet, cell string) (*xlsxC, int, int, er
 	if err != nil {
 		return nil, 0, 0, err
 	}
-
+	
 	prepareSheetXML(ws, col, row)
 	ws.Lock()
 	defer ws.Unlock()
@@ -1281,20 +1281,20 @@ func (f *File) getCellStringFunc(sheet, cell string, fn func(x *xlsxWorksheet, c
 	if err != nil {
 		return "", err
 	}
-
+	
 	ws.Lock()
 	defer ws.Unlock()
-
+	
 	lastRowNum := 0
 	if l := len(ws.SheetData.Row); l > 0 {
 		lastRowNum = ws.SheetData.Row[l-1].R
 	}
-
+	
 	// keep in mind: row starts from 1
 	if row > lastRowNum {
 		return "", nil
 	}
-
+	
 	for rowIdx := range ws.SheetData.Row {
 		rowData := &ws.SheetData.Row[rowIdx]
 		if rowData.R != row {
@@ -1414,7 +1414,7 @@ func (f *File) checkCellInRangeRef(cell, rangeRef string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
+	
 	if rng := strings.Split(rangeRef, ":"); len(rng) != 2 {
 		return false, err
 	}
@@ -1422,7 +1422,7 @@ func (f *File) checkCellInRangeRef(cell, rangeRef string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
+	
 	return cellInRange([]int{col, row}, coordinates), err
 }
 

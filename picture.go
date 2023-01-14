@@ -62,7 +62,7 @@ func parseGraphicOptions(opts *GraphicOptions) *GraphicOptions {
 //	    _ "image/jpeg"
 //	    _ "image/png"
 //
-//	    "github.com/xuri/excelize/v2"
+//	    "github.com/gozelle/excelize"
 //	)
 //
 //	func main() {
@@ -173,7 +173,7 @@ func (f *File) AddPicture(sheet, cell, picture string, opts *GraphicOptions) err
 //	    _ "image/jpeg"
 //	    "os"
 //
-//	    "github.com/xuri/excelize/v2"
+//	    "github.com/gozelle/excelize"
 //	)
 //
 //	func main() {
@@ -382,7 +382,7 @@ func (f *File) addDrawingPicture(sheet, drawingXML, cell, file, ext string, rID,
 		}
 	}
 	pic.SpPr.PrstGeom.Prst = "rect"
-
+	
 	twoCellAnchor.Pic = &pic
 	twoCellAnchor.ClientData = &xdrClientData{
 		FLocksWithSheet:  *opts.Locked,
@@ -596,7 +596,7 @@ func (f *File) GetPicture(sheet, cell string) (string, []byte, error) {
 	drawingXML := strings.ReplaceAll(target, "..", "xl")
 	drawingRelationships := strings.ReplaceAll(
 		strings.ReplaceAll(target, "../drawings", "xl/drawings/_rels"), ".xml", ".xml.rels")
-
+	
 	return f.getPicture(row, col, drawingXML, drawingRelationships)
 }
 
@@ -631,7 +631,7 @@ func (f *File) getPicture(row, col int, drawingXML, drawingRelationships string)
 		drawRel         *xlsxRelationship
 		deTwoCellAnchor *decodeTwoCellAnchor
 	)
-
+	
 	if wsDr, _, err = f.drawingParser(drawingXML); err != nil {
 		return
 	}
